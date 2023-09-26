@@ -1,0 +1,3 @@
+
+addpath('./function');
+addpath('./script');
