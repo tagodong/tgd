@@ -10,7 +10,7 @@
 %% Initialize the parameters.
 % path_g="/home/d1/beads/g";
 % path_r="/home/d1/beads/r";
-red_flag = 1;
+% red_flag = 1;
 % start_num = 325;
 % end_num = 1200;
 % step_size = 1;

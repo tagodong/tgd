@@ -59,8 +59,8 @@ function reConstruction(file_path_red,file_path_green,red_flag,red_PSF,green_PSF
                 green_ObjRecon = flip(green_ObjRecon,1);
 
                 % Transform the green to register the red because of dissynchrony of dichroic mirrors.
-                % sameAsInput = affineOutputView(size(red_ObjRecon),tform,'BoundsStyle','SameAsInput');
-                % green_ObjRecon = imwarp(green_ObjRecon,tform,'linear','OutputView',sameAsInput);
+                sameAsInput = affineOutputView(size(red_ObjRecon),tform,'BoundsStyle','SameAsInput');
+                green_ObjRecon = imwarp(green_ObjRecon,tform,'linear','OutputView',sameAsInput);
                 
                 % Crop the black background and rotate the two ObjRecons.
                 disp('dual crop start.');
