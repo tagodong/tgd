@@ -5,7 +5,7 @@ file_path="/home/d1/blueLaser"
 file_name=$(ls $file_path);
 file_name=(${file_name//,/ });
 
-for ((i=0;i<${#file_name[*]};i=i+1))
+for ((i=1;i<${#file_name[*]};i=i+1))
 do
 	Path_g=$file_path/${file_name[$i]}/g
 	Path_r=$file_path/${file_name[$i]}/r
@@ -13,13 +13,15 @@ do
 
 	###### Run the registration pepline.
 	# Run reconstruction.
-	cd /home/user/tgd/Dual-Color-Image-Processing/Reconstruction/script/
-	matlab -nodesktop -nosplash -r "path_g = '${Path_g}'; path_r = '${Path_r}'; red_flag = $Red_flag; start_num = 325; end_num = 1200; x_shift = 80; recon_demo; quit"
+	if [ $i -ne 1 ]; then
+		cd /home/user/tgd/Dual-Color-Image-Processing/Reconstruction/script/
+		matlab -nodesktop -nosplash -r "path_g = '${Path_g}'; path_r = '${Path_r}'; red_flag = $Red_flag; heart_flag = 1; start_num = 325; end_num = 1200; x_shift = 80; recon_demo; quit"
+	fi
 
 	###### Generate mean_template.
 	# Find candidate templates.
 	cd /home/user/tgd/Dual-Color-Image-Processing/Registration/script/
-	matlab -nodesktop -nosplash -r "file_path = '${Path_g}'; red_flag = $Red_flag; canTemplateFind_run; quit"
+	matlab -nodesktop -nosplash -r "path_g = '${Path_g}'; path_r = '${Path_r}'; red_flag = $Red_flag; canTemplateFind_run; quit"
 
 	# Run Registration for candidate templates.
 	bash regist_candidate.sh ${Path_g} ${Path_r} ${Red_flag}

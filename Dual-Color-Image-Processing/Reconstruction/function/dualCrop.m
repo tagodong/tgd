@@ -1,4 +1,4 @@
-function dualCrop(red_ObjRecon,green_ObjRecon,file_path_red,file_path_green,num,atlas,crop_size,x_shift)
+function dualCrop(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path_green,num,atlas,crop_size,x_shift)
 %% function summary: Crop the black background and rotate the two ObjRecons. 
 
 %  input:
@@ -47,6 +47,11 @@ function dualCrop(red_ObjRecon,green_ObjRecon,file_path_red,file_path_green,num,
     % Flip the fish because there is a filp transform in our system. 
     red_ObjRecon = flip(red_ObjRecon,3);
     green_ObjRecon = flip(green_ObjRecon,3);
+
+    if heart_flag
+        red_ObjRecon = red_ObjRecon(:,:,1:220);
+        green_ObjRecon = green_ObjRecon(:,:,1:220);
+    end
     
     % write the MIP of reconstructed images.
     red_MIP=[max(red_ObjRecon,[],3) squeeze(max(red_ObjRecon,[],2));squeeze(max(red_ObjRecon,[],1))' zeros(size(red_ObjRecon,3),size(red_ObjRecon,3))];
@@ -86,7 +91,7 @@ function dualCrop(red_ObjRecon,green_ObjRecon,file_path_red,file_path_green,num,
         green_ObjRecon = permute(green_ObjRecon,[1 3 2]);
 
     %% second, check if the fish is right vertival whose head in the top using template matching, if not flip it.
-        red_xy_MIP = max(red_ObjRecon,[],3);
+        red_xy_MIP = max(green_ObjRecon,[],3);
         zbb_xy_MIP = max(atlas,[],3); %%
         % zbb_xy_MIP = atlas;
         cross_corr = normxcorr2(zbb_xy_MIP,red_xy_MIP);

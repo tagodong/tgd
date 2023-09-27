@@ -61,7 +61,8 @@ function [candidate_templates,NR_scores,pixels_thresh] = canTemplateFind(MIPs_pa
     %% Save the candidate templates.
     tempalte_MIPs_path = fullfile(MIPs_path,'Can_Template_MIPs');
     template_path = fullfile(MIPs_path,'..','template');
-    if ~exist(template_path,'dir')
+    
+    if ~exist(tempalte_MIPs_path,'dir')
         mkdir(tempalte_MIPs_path);
         mkdir(template_path);
     end
@@ -93,4 +94,3 @@ function [candidate_templates,NR_scores,pixels_thresh] = canTemplateFind(MIPs_pa
     disp('candidate_templates done!');
     
 end
-    

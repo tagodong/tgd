@@ -14,46 +14,47 @@ if [ $red_flag -eq 0 ]; then
     template_path=${path_g}/template
 else
     template_path=${path_r}/template
-    Green_template_path=${path_r}/template/Green_template
-    mkdir ${Green_template_path}
+    mkdir $template_path
+    # Green_template_path=${path_r}/template/Green_template
+    # mkdir ${Green_template_path}
 fi
 
 # Initialize path parameters.
 zbbfish="/home/user/tgd/Dual-Color-Image-Processing/data/Atlas/Ref-zbb2.nii"
 
-###### When Red is usful, Regist Green to Red.
-if [ $red_flag -eq 1 ]; then
+# ###### When Red is usful, Regist Green to Red.
+# if [ $red_flag -eq 1 ]; then
 
-    G2R_path=$green_path/G2R
-    mkdir ${G2R_path}
-    file_name=$(ls $green_path/Green*.nii);
-    file_name=(${file_name//,/ });
-    len=$(ls -l ${green_path}/Green*.nii | grep "^-" | wc -l);
+#     G2R_path=$green_path/G2R
+#     mkdir ${G2R_path}
+#     file_name=$(ls $green_path/Green*.nii);
+#     file_name=(${file_name//,/ });
+#     len=$(ls -l ${green_path}/Green*.nii | grep "^-" | wc -l);
 
-    for ((i=0;i<$len;i=i+1))
-    do
-        name_num=$(basename -s .nii ${file_name[$i]});
+#     for ((i=0;i<$len;i=i+1))
+#     do
+#         name_num=$(basename -s .nii ${file_name[$i]});
         
-        # Set k to the number of the name.
-        k=${name_num:5};
+#         # Set k to the number of the name.
+#         k=${name_num:5};
 
-        start_time=$(date +%s)
-        # Initialize affine matrix.
-        cmtk make_initial_affine --principal-axes ${red_path}/Red${k}.nii ${green_path}/Green${k}.nii ${G2R_path}/initial${k}.xform
+#         start_time=$(date +%s)
+#         # Initialize affine matrix.
+#         cmtk make_initial_affine --principal-axes ${red_path}/Red${k}.nii ${green_path}/Green${k}.nii ${G2R_path}/initial${k}.xform
         
-        # Generate affine matrix.
-        cmtk registration --initial ${G2R_path}/initial${k}.xform --dofs 6,12 --exploration 8 --accuracy 0.05 --cr -o ${G2R_path}/affine${k}.xform ${red_path}/Red${k}.nii ${green_path}/Green${k}.nii
+#         # Generate affine matrix.
+#         cmtk registration --initial ${G2R_path}/initial${k}.xform --dofs 6,12 --exploration 8 --accuracy 0.05 --cr -o ${G2R_path}/affine${k}.xform ${red_path}/Red${k}.nii ${green_path}/Green${k}.nii
 
-        # Apply affine matrix.
-        cmtk reformatx -o ${G2R_path}/Green_G2R${k}.nii --floating ${green_path}/Green${k}.nii ${red_path}/Red${k}.nii ${G2R_path}/affine${k}.xform
+#         # Apply affine matrix.
+#         cmtk reformatx -o ${G2R_path}/Green_G2R${k}.nii --floating ${green_path}/Green${k}.nii ${red_path}/Red${k}.nii ${G2R_path}/affine${k}.xform
 
-        end_time=$(date +%s)
-        cost_time=$[ $end_time-$start_time ]
-        echo "Reg & Warp time is $(($cost_time/60))min $(($cost_time%60))s"
-        echo $name_num
+#         end_time=$(date +%s)
+#         cost_time=$[ $end_time-$start_time ]
+#         echo "Reg & Warp time is $(($cost_time/60))min $(($cost_time%60))s"
+#         echo $name_num
 
-    done
-fi
+#     done
+# fi
 
 
 ###### Regist best candidate template.
@@ -93,9 +94,9 @@ do
     cmtk reformatx -o ${Affine_template_path}/Can_template_affine${k}.nii --floating ${template_path}/Can_template${k}.nii ${template_path}/Best_mean_template.nii ${Affine_template_path}/affine${k}.xform
 
     # Regist Green which was used for crop eyes.
-    if [ $red_flag -eq 1 ]; then
-        cmtk reformatx -o ${Green_template_path}/Green_Can_template_affine${k}.nii --floating ${G2R_path}/Green_G2R${k}.nii ${template_path}/Best_mean_template.nii ${Affine_template_path}/affine${k}.xform
-    fi
+    # if [ $red_flag -eq 1 ]; then
+    #     cmtk reformatx -o ${Green_template_path}/Green_Can_template_affine${k}.nii --floating ${G2R_path}/Green_G2R${k}.nii ${template_path}/Best_mean_template.nii ${Affine_template_path}/affine${k}.xform
+    # fi
 
     end_time=$(date +%s)
     cost_time=$[ $end_time-$start_time ]
@@ -107,10 +108,10 @@ done
 ###### Average all the candidate templates.
 cmtk average_images --avg --outfile-name ${template_path}/affine_mean_template.nii ${Affine_template_path}/Can_template_affine*.nii
 mean_template=${template_path}/affine_mean_template.nii
-if [ $red_flag -eq 1 ]; then
-    cmtk average_images --avg --outfile-name ${template_path}/Green_affine_mean_template.nii ${Green_template_path}/Green_Can_template_affine*.nii
-    mean_template=${template_path}/Green_affine_mean_template.nii
-fi
+# if [ $red_flag -eq 1 ]; then
+#     cmtk average_images --avg --outfile-name ${template_path}/Green_affine_mean_template.nii ${Green_template_path}/Green_Can_template_affine*.nii
+#     mean_template=${template_path}/Green_affine_mean_template.nii
+# fi
 matlab -nodesktop -nosplash -r "input = '${mean_template}'; output = '${mean_template}'; myushort; quit"
 
 ##### Run inverse nonrigid registration to make crop-eyes-MASK.
@@ -143,13 +144,6 @@ matlab -nodesktop -nosplash -r "template_path = '${template_path}'; demonsRegist
 cmtk average_images --avg --outfile-name ${template_path}/mean_template.nii ${template_path}/template_demons/template_demons*.nii
 
 ##### Regist to mean template.
-red_path=${path_r}/dual_Crop
-if [ $red_flag -eq 1 ]; then
-    green_path=${G2R_path}
-else
-    green_path=${path_g}/dual_Crop
-fi
-
 # Set the output green chanel image directory path that is registered.
 regist_red_path=${path_r}/regist_red
 mkdir $regist_red_path
@@ -168,17 +162,23 @@ mkdir $regist_green_path
 # Run affine registration.
 red_path=${path_r}/dual_Crop
 if [ $red_flag -eq 1 ]; then
-    green_path=${G2R_path}
-    file_name=$(ls ${green_path}/Green_G2R*.nii);
+    # green_path=${G2R_path}
+    # file_name=$(ls ${green_path}/Green_G2R*.nii);
+    # file_name=(${file_name//,/ });
+    # len=$(ls -l ${green_path}/Green_G2R*.nii | grep "^-" | wc -l);
+
+    green_path=${path_g}/dual_Crop
+    file_name=$(ls ${green_path}/Green*.nii);
     file_name=(${file_name//,/ });
-    len=$(ls -l ${green_path}/Green_G2R*.nii | grep "^-" | wc -l);
+    len=$(ls -l ${green_path}/Green*.nii | grep "^-" | wc -l);
 
     for ((i=0;i<$len;i=i+1))
     do
         name_num=$(basename -s .nii ${file_name[$i]});
         
         # Set k to the number of the name.
-        k=${name_num:9};
+        # k=${name_num:9};
+        k=${name_num:5};
 
         start_time=$(date +%s)
 
@@ -190,7 +190,8 @@ if [ $red_flag -eq 1 ]; then
 
         # Apply affine matrix.
         cmtk reformatx -o ${regist_red_path}/regist_red_1_${k}.nii --floating ${red_path}/Red${k}.nii $mean_template ${red_path}/affine${k}.xform
-        cmtk reformatx -o ${regist_green_path}/regist_green_1_${k}.nii --floating ${green_path}/Green_G2R${k}.nii $mean_template ${red_path}/affine${k}.xform
+        # cmtk reformatx -o ${regist_green_path}/regist_green_1_${k}.nii --floating ${green_path}/Green_G2R${k}.nii $mean_template ${red_path}/affine${k}.xform
+        cmtk reformatx -o ${regist_green_path}/regist_green_1_${k}.nii --floating ${green_path}/Green${k}.nii $mean_template ${red_path}/affine${k}.xform
 
         end_time=$(date +%s)
         cost_time=$[ $end_time-$start_time ]

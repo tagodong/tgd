@@ -14,6 +14,7 @@ adpath;
 % start_num = 325;
 % end_num = 1200;
 % step_size = 1;
+% heart_flag = 0;
 
 file_Path_Red = path_r;
 file_Path_Green = path_g;
@@ -39,6 +40,14 @@ crop_size = [400,308,210];
 % Set gpu index (if have multi-gpus, use a vector.).
 gpu_index = [1,2,3,4];
 
+if ~exist('red_flag','var')
+    red_flag = 1;
+end
+
+if ~exist('heart_flag','var')
+    heart_flag = 0;
+end
+
 if ~exist('start_num','var')
     start_num = 1;
 end
@@ -54,5 +63,5 @@ end
 
 % Run reconstruction and crop the black background.
 tic;
-reConstruction(file_Path_Red,file_Path_Green,red_flag,red_PSF,green_PSF,atlas,crop_size,start_num,step_size,end_num,tform,x_shift,gpu_index);
+reConstruction(file_Path_Red,file_Path_Green,red_flag,heart_flag,red_PSF,green_PSF,atlas,crop_size,start_num,step_size,end_num,tform,x_shift,gpu_index);
 toc;

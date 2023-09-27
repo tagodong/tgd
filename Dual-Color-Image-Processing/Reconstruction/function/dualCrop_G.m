@@ -1,4 +1,4 @@
-function dualCrop_G(red_ObjRecon,green_ObjRecon,file_path_red,file_path_green,num,atlas,crop_size,x_shift)
+function dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path_green,num,atlas,crop_size,x_shift)
     %% function summary: Crop the black background and rotate the two ObjRecons. 
     
     %  input:
@@ -49,8 +49,10 @@ function dualCrop_G(red_ObjRecon,green_ObjRecon,file_path_red,file_path_green,nu
         green_ObjRecon = flip(green_ObjRecon,3);
         
         % If the fish has fluorescent in its heart, we need to crop it.
-        % red_ObjRecon = red_ObjRecon(:,:,1:225);
-        % green_ObjRecon = green_ObjRecon(:,:,1:225);
+        if heart_flag
+            red_ObjRecon = red_ObjRecon(:,:,1:225);
+            green_ObjRecon = green_ObjRecon(:,:,1:225);
+        end
     
         % write the MIP of reconstructed images.
         red_MIP=[max(red_ObjRecon,[],3) squeeze(max(red_ObjRecon,[],2));squeeze(max(red_ObjRecon,[],1))' zeros(size(red_ObjRecon,3),size(red_ObjRecon,3))];

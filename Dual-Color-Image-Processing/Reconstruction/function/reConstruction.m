@@ -1,4 +1,4 @@
-function reConstruction(file_path_red,file_path_green,red_flag,red_PSF,green_PSF,atlas,crop_size,start_frame,step_size,end_frame,tform,x_shift,gpu_index)
+function reConstruction(file_path_red,file_path_green,red_flag,heart_flag,red_PSF,green_PSF,atlas,crop_size,start_frame,step_size,end_frame,tform,x_shift,gpu_index)
 %% function summary: reconstruct frames.
 
 %  input:
@@ -12,11 +12,11 @@ function reConstruction(file_path_red,file_path_green,red_flag,red_PSF,green_PSF
 %  update on 2023.01.06.
 
 %% Initialize the parameters.
-    if nargin == 11
+    if nargin == 12
         x_shift = 80;
         gpu_index = [1 2 3 4];
     else 
-        if nargin == 12
+        if nargin == 13
             gpu_index = [1 2 3 4];
         end
     end
@@ -66,9 +66,9 @@ function reConstruction(file_path_red,file_path_green,red_flag,red_PSF,green_PSF
                 disp('dual crop start.');
                 tic;
                 if red_flag
-                    dualCrop(red_ObjRecon,green_ObjRecon,file_path_red,file_path_green,num,atlas,crop_size,x_shift);
+                    dualCrop(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path_green,num,atlas,crop_size,x_shift);
                 else
-                    dualCrop_G(red_ObjRecon,green_ObjRecon,file_path_red,file_path_green,num,atlas,crop_size,x_shift);
+                    dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path_green,num,atlas,crop_size,x_shift);
                 end
                 toc;
                 disp(['frame ',num2str(num),' end.']);
