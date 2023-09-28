@@ -35,11 +35,11 @@ function registDemons(file_path_red,file_path_green,red_flag,start_frame,step_si
         green_crop_image = gpuArray(green_crop_image);
 
         if red_flag
-            [D,red_demons] = imregdemons(red_crop_image,refer_image,[200 200 150 150 100],'PyramidLevels',5,'AccumulatedFieldSmoothing',3.0,'DisplayWaitbar',false);
+            [D,red_demons] = imregdemons(red_crop_image,refer_image,[500 400 200],'PyramidLevels',3,'AccumulatedFieldSmoothing',2.5,'DisplayWaitbar',false);
             green_demons = imwarp(green_crop_image,D,'linear');
 
         else
-            [D,green_demons] = imregdemons(green_crop_image,refer_image,[200 200 150 150 100],'PyramidLevels',5,'AccumulatedFieldSmoothing',3.0,'DisplayWaitbar',false);
+            [D,green_demons] = imregdemons(green_crop_image,refer_image,[500 400 200],'PyramidLevels',3,'AccumulatedFieldSmoothing',2.5,'DisplayWaitbar',false);
             red_demons = imwarp(red_crop_image,D,'linear');
         end
         
