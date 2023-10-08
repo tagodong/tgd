@@ -1,9 +1,9 @@
 clear
 clc
 
-old_path = '/home/d2/220608/r/r220608_learning/';
+old_path = '/home/d1/old_beads/regis_G_R/r';
 
-new_path = '/home/d2/220608/r/new';
+new_path = '/home/d1/old_beads/r';
 if ~exist(new_path,"dir")
     mkdir(new_path);
 end
@@ -13,8 +13,8 @@ old_tif_files = dir(fullfile(old_path,'*.tif'));
 name_num = zeros(length(old_tif_files),1);
 for i = 1:length(old_tif_files)
     cur_name = old_tif_files(i).name;
-    cur_name = split(cur_name,'_');
-    cur_name = cur_name{3};
+    % cur_name = split(cur_name,'_');
+    % cur_name = cur_name{3};
     cur_num = str2double(cur_name(isstrprop(cur_name,"digit")));
     name_num(i) = cur_num;
 end

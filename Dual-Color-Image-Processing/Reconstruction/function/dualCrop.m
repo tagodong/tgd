@@ -49,8 +49,8 @@ function dualCrop(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path
     green_ObjRecon = flip(green_ObjRecon,3);
 
     if heart_flag
-        red_ObjRecon = red_ObjRecon(:,:,1:220);
-        green_ObjRecon = green_ObjRecon(:,:,1:220);
+        red_ObjRecon = red_ObjRecon(:,:,1:225);
+        green_ObjRecon = green_ObjRecon(:,:,1:225);
     end
     
     % write the MIP of reconstructed images.

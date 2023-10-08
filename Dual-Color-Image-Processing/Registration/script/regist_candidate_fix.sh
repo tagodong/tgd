@@ -7,6 +7,7 @@ export CMTK_WRITE_UNCOMPRESSED=1
 path_g=$1
 path_r=$2
 red_flag=$3
+heart_flag=$4
 red_path=${path_r}/dual_Crop
 green_path=${path_g}/dual_Crop
 
@@ -15,8 +16,11 @@ if [ $red_flag -eq 0 ]; then
 else
     template_path=${path_r}/template
     mkdir $template_path
-    # Green_template_path=${path_r}/template/Green_template
-    # mkdir ${Green_template_path}
+
+    if [ $heart_flag -eq 0 ]; then
+        Green_template_path=${path_r}/template/Green_template
+        mkdir ${Green_template_path}
+    fi
 fi
 
 # Initialize path parameters.
@@ -94,9 +98,9 @@ do
     cmtk reformatx -o ${Affine_template_path}/Can_template_affine${k}.nii --floating ${template_path}/Can_template${k}.nii ${template_path}/Best_mean_template.nii ${Affine_template_path}/affine${k}.xform
 
     # Regist Green which was used for crop eyes.
-    # if [ $red_flag -eq 1 ]; then
-    #     cmtk reformatx -o ${Green_template_path}/Green_Can_template_affine${k}.nii --floating ${G2R_path}/Green_G2R${k}.nii ${template_path}/Best_mean_template.nii ${Affine_template_path}/affine${k}.xform
-    # fi
+    if [ $heart_flag -eq 0 -a $red_flag -eq 1 ]; then
+        cmtk reformatx -o ${Green_template_path}/Green_Can_template_affine${k}.nii --floating ${green_path}/Green${k}.nii ${template_path}/Best_mean_template.nii ${Affine_template_path}/affine${k}.xform
+    fi
 
     end_time=$(date +%s)
     cost_time=$[ $end_time-$start_time ]
@@ -106,12 +110,13 @@ do
 done
 
 ###### Average all the candidate templates.
-cmtk average_images --avg --outfile-name ${template_path}/affine_mean_template.nii ${Affine_template_path}/Can_template_affine*.nii
-mean_template=${template_path}/affine_mean_template.nii
-# if [ $red_flag -eq 1 ]; then
-#     cmtk average_images --avg --outfile-name ${template_path}/Green_affine_mean_template.nii ${Green_template_path}/Green_Can_template_affine*.nii
-#     mean_template=${template_path}/Green_affine_mean_template.nii
-# fi
+if [ $heart_flag -eq 0 -a $red_flag -eq 1 ]; then
+    cmtk average_images --avg --outfile-name ${template_path}/Green_affine_mean_template.nii ${Green_template_path}/Green_Can_template_affine*.nii
+    mean_template=${template_path}/Green_affine_mean_template.nii
+else
+    cmtk average_images --avg --outfile-name ${template_path}/affine_mean_template.nii ${Affine_template_path}/Can_template_affine*.nii
+    mean_template=${template_path}/affine_mean_template.nii
+fi
 matlab -nodesktop -nosplash -r "input = '${mean_template}'; output = '${mean_template}'; myushort; quit"
 
 ##### Run inverse nonrigid registration to make crop-eyes-MASK.
@@ -162,10 +167,6 @@ mkdir $regist_green_path
 # Run affine registration.
 red_path=${path_r}/dual_Crop
 if [ $red_flag -eq 1 ]; then
-    # green_path=${G2R_path}
-    # file_name=$(ls ${green_path}/Green_G2R*.nii);
-    # file_name=(${file_name//,/ });
-    # len=$(ls -l ${green_path}/Green_G2R*.nii | grep "^-" | wc -l);
 
     green_path=${path_g}/dual_Crop
     file_name=$(ls ${green_path}/Green*.nii);

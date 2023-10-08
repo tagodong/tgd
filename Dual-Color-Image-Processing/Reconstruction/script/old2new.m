@@ -1,27 +1,27 @@
 clear
 clc
 
-old_path = '/home/d1/opf_test/';
+old_path = '/home/d1/old_beads/regis_G_R/g';
 
-new_path = '/home/d1/opf_test/';
+new_path = '/home/d1/old_beads/g';
 if ~exist(new_path,"dir")
     mkdir(new_path);
 end
 
 num = 0;
 old_tif_files = dir(fullfile(old_path,'*.tif'));
-% name_num = zeros(length(old_tif_files),1);
-% for i = 1:length(old_tif_files)
-%     cur_name = old_tif_files(i).name;
-%     cur_name = split(cur_name,'_');
-%     cur_name = cur_name{5};
-%     cur_num = str2double(cur_name(isstrprop(cur_name,"digit")));
-%     name_num(i) = cur_num;
-% end
-% [~,idx] = sort(name_num);
+name_num = zeros(length(old_tif_files),1);
+for i = 1:length(old_tif_files)
+    cur_name = old_tif_files(i).name;
+    % cur_name = split(cur_name,'_');
+    % cur_name = cur_name{5};
+    cur_num = str2double(cur_name(isstrprop(cur_name,"digit")));
+    name_num(i) = cur_num;
+end
+[~,idx] = sort(name_num);
 
 for i = 1:length(old_tif_files)
-    tif_name{i} = old_tif_files(i).name;
+    tif_name{i} = old_tif_files(idx(i)).name;
 end
 
 
