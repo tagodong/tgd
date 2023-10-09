@@ -5,7 +5,7 @@ file_dir='/home/d1/fix'
 file_name=$(ls $file_dir);
 file_name=(${file_name//,/ });
 
-for ((i=1;i<${#file_name[*]};i=i+1))
+for ((i=0;i<${#file_name[*]};i=i+1))
 do
     # Uncompress the file.
     file_path=$(ls $file_dir/${file_name[$i]});
@@ -18,10 +18,11 @@ do
     7z x $file_dir/${file_name[$i]}/${file[1]} -o$Path_r
 	
     # Move the file and remove dir.
-    mv $Path_g/*/*/*.tif $Path_g/
+    mv $Path_g/g*/*/*.tif $Path_g/
     rm -r $Path_g/g*
 
-    mv $Path_r/*/*.tif $Path_r/
+    mv $Path_r/r*/*.tif $Path_r/
     rm -r $Path_r/r*
 
+    rm $file_dir/${file_name[$i]}/*.7z
 done
