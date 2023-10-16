@@ -8,14 +8,14 @@ function [seg_regions, water_corMap, info_data] = rectSegGenerate(file_path, pre
      dx = size(eval(value_name),1);
      dy = size(eval(value_name),2);
      dz = size(eval(value_name),3);
-     SD = zeros(dx,dy,dz,'single','gpuArray');
-     Y_mean = zeros(dx,dy,dz,'single','gpuArray');
+     SD = zeros(dx,dy,dz,'single');
+     Y_mean = zeros(dx,dy,dz,'single');
      
      %% First, calculate Y_mean, F_max, F_min
      for i=start_frame+1:end_frame
          filename_in = [pre_name,num2str(i),input_extend];
          load(fullfile(file_path,filename_in),value_name);
-         Y_mean = Y_mean + gpuArray(single(eval(value_name)));
+         Y_mean = Y_mean + single(eval(value_name));
      end
      Y_mean = Y_mean/(end_frame-start_frame+1);
      disp('calculate Y_mean done.');
@@ -24,7 +24,7 @@ function [seg_regions, water_corMap, info_data] = rectSegGenerate(file_path, pre
      for i=start_frame:end_frame
          filename_in = [pre_name,num2str(i),input_extend];
          load(fullfile(file_path,filename_in),value_name);
-         Y_shift = bsxfun(@minus,gpuArray(single(eval(value_name))),Y_mean);
+         Y_shift = bsxfun(@minus,single(eval(value_name)),Y_mean);
          SD = SD + Y_shift.*Y_shift;
      end
      SD = sqrt(SD/(end_frame-start_frame+1));
@@ -52,5 +52,5 @@ function [seg_regions, water_corMap, info_data] = rectSegGenerate(file_path, pre
          temp  = water_corMap==k;
          seg_regions(:,k) = sparse(reshape(temp,[dx*dy*dz,1]));
      end
-
+     disp('Segmentation done.')
 end

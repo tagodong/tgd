@@ -24,18 +24,18 @@ function [CalTrace,Coherence,seg_regions,water_corMap_filter,info_data] = corMap
     dy = size(eval(value_name),2);
     dz = size(eval(value_name),3);
     Corr = zeros(dx,dy,dz,'single');
-    SD = zeros(dx,dy,dz,'single','gpuArray');
-    Y_mean = zeros(dx,dy,dz,'single','gpuArray');
-    F_max = zeros(dx,dy,dz,'single','gpuArray');
-    F_min = gpuArray(single(eval(value_name)));
+    SD = zeros(dx,dy,dz,'single');
+    Y_mean = zeros(dx,dy,dz,'single');
+    F_max = zeros(dx,dy,dz,'single');
+    F_min = single(eval(value_name));
     
     %% First, calculate Y_mean, F_max, F_min
     for i=start_frame+1:end_frame
         filename_in = [pre_name,num2str(i),input_extend];
         load(fullfile(file_path,filename_in),value_name);
-        Y_mean = Y_mean + gpuArray(single(eval(value_name)));
+        Y_mean = Y_mean + single(eval(value_name));
         clear temp;
-        temp(:,:,:,1) = gpuArray(single(eval(value_name)));
+        temp(:,:,:,1) = single(eval(value_name));
         temp(:,:,:,2) = F_max;
         F_max = squeeze(max(temp,[],4));
         temp(:,:,:,2) = F_min;
@@ -50,7 +50,7 @@ function [CalTrace,Coherence,seg_regions,water_corMap_filter,info_data] = corMap
     for i=start_frame:end_frame
         filename_in = [pre_name,num2str(i),input_extend];
         load(fullfile(file_path,filename_in),value_name);
-        Y_shift = bsxfun(@minus,gpuArray(single(eval(value_name))),Y_mean);
+        Y_shift = bsxfun(@minus,single(eval(value_name)),Y_mean);
         SD = SD + Y_shift.*Y_shift;
     end
     SD = sqrt(SD/(end_frame-start_frame+1));
@@ -66,12 +66,11 @@ function [CalTrace,Coherence,seg_regions,water_corMap_filter,info_data] = corMap
     for n=start_frame:end_frame
         filename_in = [pre_name,num2str(n),input_extend];
         load(fullfile(file_path,filename_in),value_name);
-        Y_shift = bsxfun(@minus,gpuArray(single(eval(value_name))),Y_mean);
+        Y_shift = bsxfun(@minus,single(eval(value_name)),Y_mean);
         Y_shift = Y_shift./SD;
         Y_shift(SD==0) = 0;
         Y_shift(F_max<thresh.max) = 0; % mask by thresh.max
         Y_shift(F_min<thresh.min) = 0; % mask by thresh.min
-        Y_shift = gather(Y_shift);
         for i=1+ad_dist:dx-ad_dist
             for j=1+ad_dist:dy-ad_dist
                 for k=1+ad_dist:dz-ad_dist

@@ -81,14 +81,16 @@ function dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_pa
             [cor_x,cor_y,cor_z] = ind2sub(size(green_BW_ObjRecon),find(green_BW_ObjRecon));
             cor_coef = pca([cor_x,cor_y,cor_z]);
             [azimuth,elevation] = cart2sph(cor_coef(1,1),cor_coef(2,1),cor_coef(3,1));
-            red_ObjRecon = imrotate(red_ObjRecon,-(gather(azimuth)/pi*180),'bicubic','crop');
-            green_ObjRecon = imrotate(green_ObjRecon,-(gather(azimuth)/pi*180),'bicubic','crop');
+            azimuth = gather(azimuth);
+            elevation = gather(elevation);
+            red_ObjRecon = imrotate(red_ObjRecon,-(azimuth/pi*180),'bicubic','crop');
+            green_ObjRecon = imrotate(green_ObjRecon,-(azimuth/pi*180),'bicubic','crop');
     
             red_ObjRecon = permute(red_ObjRecon,[1 3 2]);
-            red_ObjRecon = imrotate(red_ObjRecon,-(gather(elevation)/pi*180),'bicubic','crop');
+            red_ObjRecon = imrotate(red_ObjRecon,-(elevation/pi*180),'bicubic','crop');
             red_ObjRecon = permute(red_ObjRecon,[1 3 2]);
             green_ObjRecon = permute(green_ObjRecon,[1 3 2]);
-            green_ObjRecon = imrotate(green_ObjRecon,-(gather(elevation)/pi*180),'bicubic','crop');
+            green_ObjRecon = imrotate(green_ObjRecon,-(elevation/pi*180),'bicubic','crop');
             green_ObjRecon = permute(green_ObjRecon,[1 3 2]);
     
         %% second, check if the fish is right vertival whose head in the top using template matching, if not flip it.

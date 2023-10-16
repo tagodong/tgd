@@ -61,11 +61,12 @@ function ObjRecon = reConstruct(imstack,PSF,red_flag)
         end
 
     end
-    ObjRecon=uint16(gpuObjRecon);
     
 %% the red image should flip.
     if red_flag
-        ObjRecon=flip(ObjRecon,2);
+        gpuObjRecon=flip(gpuObjRecon,2);
     end
+
+    ObjRecon=uint16(gpuObjRecon);
 
 end

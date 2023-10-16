@@ -1,9 +1,9 @@
 clear
 clc
 
-old_path = '/home/d1/old_beads/regis_G_R/r';
+old_path = '/home/d2/beads_g2r_231012';
 
-new_path = '/home/d1/old_beads/r';
+new_path = '/home/d2/new_beads';
 if ~exist(new_path,"dir")
     mkdir(new_path);
 end

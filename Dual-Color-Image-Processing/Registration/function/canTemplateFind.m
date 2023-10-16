@@ -16,14 +16,14 @@ function [candidate_templates,NR_scores,pixels_thresh] = canTemplateFind(MIPs_pa
     NR_scores = zeros(size(Red_MIPs,1),2);
     name_num = zeros(size(Red_MIPs,1),1);
     for i = 1:size(Red_MIPs,1)
+        red_name = Red_MIPs(i).name;
+        name_num(i) = str2double(red_name(isstrprop(Red_MIPs(i).name,'digit')));
         red_MIP = imread(fullfile(MIPs_path,Red_MIPs(i).name));
         num_pixels = sum(red_MIP>0,'all');
         if num_pixels < pixels_thresh
-            red_MIP = zeros(size(red_MIP),'uint16');
+            continue;
         end
         
-        red_name = Red_MIPs(i).name;
-        name_num(i) = str2double(red_name(isstrprop(Red_MIPs(i).name,'digit')));
         NR_scores(i,1) = fmeasure(red_MIP, 'LAPD');
         NR_scores(i,2) = max(normxcorr2(red_MIP(1:400,1:308),zbb_MIP),[],"all");
     end

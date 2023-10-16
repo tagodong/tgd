@@ -110,12 +110,11 @@ do
 done
 
 ###### Average all the candidate templates.
+cmtk average_images --avg --outfile-name ${template_path}/affine_mean_template.nii ${Affine_template_path}/Can_template_affine*.nii
+mean_template=${template_path}/affine_mean_template.nii
 if [ $heart_flag -eq 0 -a $red_flag -eq 1 ]; then
     cmtk average_images --avg --outfile-name ${template_path}/Green_affine_mean_template.nii ${Green_template_path}/Green_Can_template_affine*.nii
     mean_template=${template_path}/Green_affine_mean_template.nii
-else
-    cmtk average_images --avg --outfile-name ${template_path}/affine_mean_template.nii ${Affine_template_path}/Can_template_affine*.nii
-    mean_template=${template_path}/affine_mean_template.nii
 fi
 matlab -nodesktop -nosplash -r "input = '${mean_template}'; output = '${mean_template}'; myushort; quit"
 
@@ -163,12 +162,15 @@ regist_red_path=${path_r}/regist_red
 mkdir $regist_red_path
 regist_green_path=${path_g}/regist_green
 mkdir $regist_green_path
+regist_green_path_new=${path_g}/regist_green_new
+mkdir $regist_green_path_new
 
 # Run affine registration.
 red_path=${path_r}/dual_Crop
 if [ $red_flag -eq 1 ]; then
 
     green_path=${path_g}/dual_Crop
+    green_path_new=${path_g}/dual_Crop_new
     file_name=$(ls ${green_path}/Green*.nii);
     file_name=(${file_name//,/ });
     len=$(ls -l ${green_path}/Green*.nii | grep "^-" | wc -l);
@@ -193,6 +195,8 @@ if [ $red_flag -eq 1 ]; then
         cmtk reformatx -o ${regist_red_path}/regist_red_1_${k}.nii --floating ${red_path}/Red${k}.nii $mean_template ${red_path}/affine${k}.xform
         # cmtk reformatx -o ${regist_green_path}/regist_green_1_${k}.nii --floating ${green_path}/Green_G2R${k}.nii $mean_template ${red_path}/affine${k}.xform
         cmtk reformatx -o ${regist_green_path}/regist_green_1_${k}.nii --floating ${green_path}/Green${k}.nii $mean_template ${red_path}/affine${k}.xform
+
+        cmtk reformatx -o ${regist_green_path_new}/regist_green_1_${k}.nii --floating ${green_path_new}/Green${k}.nii $mean_template ${red_path}/affine${k}.xform
 
         end_time=$(date +%s)
         cost_time=$[ $end_time-$start_time ]

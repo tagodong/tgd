@@ -14,10 +14,10 @@ function [seg_regions,water_corMap_filter] = coherenceFilter(file_path,Coherence
     %   water_corMap_filter --- filtered segmented regions map.
     
     %% Run.
-        Mask_Coherence = zeros(size(Coherence),"single",'gpuArray');
+        Mask_Coherence = zeros(size(Coherence),"single");
         Mask_Coherence(Coherence>thresh_Coherence) = 1;
         [d1,d2,d3] = size(Coherence);
-        water_corMap_filter = gather(water_corMap.*Mask_Coherence);
+        water_corMap_filter = water_corMap.*Mask_Coherence;
         water_corMap_filter = bwareaopen(water_corMap_filter,min_size,6);
         water_corMap_filter = bwlabeln(water_corMap_filter,6);
         num_components_keep3 = max(water_corMap_filter(:));
