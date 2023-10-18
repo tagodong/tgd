@@ -15,64 +15,18 @@ function dualCrop(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path
 %   dual_Crop --- Contain images in nii format which were cropped and rotated.
 %   dual_MIPs --- contain the maximum intensity projections in three directions of the images in dual_Crop.
 
-%   update 2022.11.30.
-
-%% Make derectories.
-    % red directory.
-    red_recon_path = fullfile(file_path_red,'recon_mat');
-    red_recon_MIP_path = fullfile(file_path_red,'recon_MIPs');
-    red_dual_path = fullfile(file_path_red,'dual_Crop');
-    red_dual_MIP_path = fullfile(file_path_red,'dual_MIPs');
-
-    % green directory.
-    green_recon_path = fullfile(file_path_green,'recon_mat');
-    green_recon_MIP_path = fullfile(file_path_green,'recon_MIPs');
-    green_dual_path = fullfile(file_path_green,'dual_Crop');
-    green_dual_MIP_path = fullfile(file_path_green,'dual_MIPs');
-
-    % create the new directory.
-    if ~exist(red_recon_MIP_path,"dir")
-        mkdir(red_recon_path);
-        mkdir(red_recon_MIP_path);
-        mkdir(red_dual_path);
-        mkdir(red_dual_MIP_path);
-        
-        mkdir(green_recon_path);
-        mkdir(green_recon_MIP_path);
-        mkdir(green_dual_path);
-        mkdir(green_dual_MIP_path); 
-    end
+%   update 2023.10.17.
     
-%% Rotate the image reference the atlas.
-    % Flip the fish because there is a filp transform in our system. 
-    red_ObjRecon = flip(red_ObjRecon,3);
-    green_ObjRecon = flip(green_ObjRecon,3);
-
+%% If have heart expression, cut the heart.
     if heart_flag
         red_ObjRecon = red_ObjRecon(:,:,1:225);
         green_ObjRecon = green_ObjRecon(:,:,1:225);
     end
-    
-    % write the MIP of reconstructed images.
-    red_MIP=[max(red_ObjRecon,[],3) squeeze(max(red_ObjRecon,[],2));squeeze(max(red_ObjRecon,[],1))' zeros(size(red_ObjRecon,3),size(red_ObjRecon,3))];
-    red_MIP_name = fullfile(red_recon_MIP_path,['red_MIP',num2str(num),'.tif']);
-    imwrite(uint16(red_MIP),red_MIP_name);
-    green_MIP=[max(green_ObjRecon,[],3) squeeze(max(green_ObjRecon,[],2));squeeze(max(green_ObjRecon,[],1))' zeros(size(green_ObjRecon,3),size(green_ObjRecon,3))];
-    green_MIP_name = fullfile(green_recon_MIP_path,['green_MIP',num2str(num),'.tif']);
-    imwrite(uint16(green_MIP),green_MIP_name);
-
-    % write the reconstructed images.
-    red_ObjRecon = gather(red_ObjRecon);
-    green_ObjRecon = gather(green_ObjRecon);
-    red_recon_name = fullfile(red_recon_path,['red_recon',num2str(num),'.mat']);
-    save(red_recon_name,'red_ObjRecon');
-    green_recon_name = fullfile(green_recon_path,['green_recon',num2str(num),'.mat']);
-    save(green_recon_name,'green_ObjRecon');
 
 %% First, rotate the fish to vertical in XY plane
-    atlas = gpuArray(uint16(atlas));
-    red_ObjRecon = gpuArray(red_ObjRecon);
-    green_ObjRecon = gpuArray(green_ObjRecon);
+    atlas = uint16(atlas);
+    % red_ObjRecon = gpuArray(red_ObjRecon);
+    % green_ObjRecon = gpuArray(green_ObjRecon);
     mean_thresh = 20;
 
     red_BW_ObjRecon = red_ObjRecon > mean(mean(mean(red_ObjRecon,'omitnan')+mean_thresh,'omitnan'),'omitnan');
@@ -80,29 +34,29 @@ function dualCrop(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path
         [cor_x,cor_y,cor_z] = ind2sub(size(red_BW_ObjRecon),find(red_BW_ObjRecon));
         cor_coef = pca([cor_x,cor_y,cor_z]);
         [azimuth,elevation] = cart2sph(cor_coef(1,1),cor_coef(2,1),cor_coef(3,1));
-        red_ObjRecon = imrotate(red_ObjRecon,-(gather(azimuth)/pi*180),'bicubic','crop');
-        green_ObjRecon = imrotate(green_ObjRecon,-(gather(azimuth)/pi*180),'bicubic','crop');
+        red_ObjRecon = imrotate(red_ObjRecon,-(azimuth/pi*180),'bicubic','crop');
+        green_ObjRecon = imrotate(green_ObjRecon,-(azimuth/pi*180),'bicubic','crop');
 
         red_ObjRecon = permute(red_ObjRecon,[1 3 2]);
-        red_ObjRecon = imrotate(red_ObjRecon,-(gather(elevation)/pi*180),'bicubic','crop');
+        red_ObjRecon = imrotate(red_ObjRecon,-(elevation/pi*180),'bicubic','crop');
         red_ObjRecon = permute(red_ObjRecon,[1 3 2]);
         green_ObjRecon = permute(green_ObjRecon,[1 3 2]);
-        green_ObjRecon = imrotate(green_ObjRecon,-(gather(elevation)/pi*180),'bicubic','crop');
+        green_ObjRecon = imrotate(green_ObjRecon,-(elevation/pi*180),'bicubic','crop');
         green_ObjRecon = permute(green_ObjRecon,[1 3 2]);
 
-    %% second, check if the fish is right vertival whose head in the top using template matching, if not flip it.
-        red_xy_MIP = max(green_ObjRecon,[],3);
-        zbb_xy_MIP = max(atlas,[],3); %%
-        % zbb_xy_MIP = atlas;
+%% second, check if the fish is right vertival whose head in the top using template matching, if not flip it.
+        flip_flag = 0;
+        red_xy_MIP = max(red_ObjRecon,[],3);
+        zbb_xy_MIP = max(atlas,[],3);
         cross_corr = normxcorr2(zbb_xy_MIP,red_xy_MIP);
 
-        zbb_xy_MIP_flip = max(imrotate(atlas,180,'bicubic', 'crop'),[],3); %%
-        % zbb_xy_MIP_flip = imrotate(atlas,180,'bicubic', 'crop');
+        zbb_xy_MIP_flip = max(imrotate(atlas,180,'bicubic', 'crop'),[],3);
         flip_corr = normxcorr2(zbb_xy_MIP_flip,red_xy_MIP);
 
         if max(flip_corr,[],'all') > max(cross_corr,[],'all')
             red_ObjRecon = imrotate(red_ObjRecon,180,'bicubic', 'crop');
             green_ObjRecon = imrotate(green_ObjRecon,180,'bicubic', 'crop');
+            flip_flag = 1;
         end
 
         red_BW_ObjRecon = red_ObjRecon > mean(mean(mean(red_ObjRecon,'omitnan')+mean_thresh,'omitnan'),'omitnan');
@@ -114,7 +68,7 @@ function dualCrop(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path
         CentroID = round(intial_size/2);
     end
 
-    %% Third, crop the background of the initial size (600*600*300 for us) to cropped size (308*400*210 for us).
+%% Third, crop the background of the initial size (600*600*300 for us) to cropped size (400*308*210 for us).
 
     % get the first dimension size.
     CentroID(1) = CentroID(1) - x_shift; %% %% could be changed for different fish 80.
@@ -178,21 +132,23 @@ function dualCrop(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path
     %     end
     % end
 
-%% Write and save files.
-    % Warn: the image correspond X and Y is different.
-    % write the MIP file.
-    RescaledRed_Mip = [max(red_ObjRecon,[],3) squeeze(max(red_ObjRecon,[],2));squeeze(max(red_ObjRecon,[],1))' zeros(size(red_ObjRecon,3),size(red_ObjRecon,3))];
-    RescaledRed_Mip = uint16(RescaledRed_Mip);
-    imwrite(RescaledRed_Mip,fullfile(red_dual_MIP_path,['MIP_Red','_',num2str(num),'.tif']));
-    RescaledGreen_Mip = [max(green_ObjRecon,[],3) squeeze(max(green_ObjRecon,[],2));squeeze(max(green_ObjRecon,[],1))' zeros(size(green_ObjRecon,3),size(green_ObjRecon,3))];
-    RescaledGreen_Mip = uint16(RescaledGreen_Mip);
-    imwrite(RescaledGreen_Mip,fullfile(green_dual_MIP_path,['MIP_Green','_',num2str(num),'.tif']));
+%% Write the results..
+    % For Red.
+    red_crop_path = fullfile(file_path_red,'Red_Crop');
+    red_crop_MIP_path = fullfile(file_path_red,'..','back_up','Red_Crop_MIP');
+    red_crop_name = ['Red_Crop_',num2str(num),'.nii'];
+    red_crop_mip_name = ['Red_Crop_MIP_',num2str(num),'.tif'];
+    imageWrite(red_crop_path,red_crop_MIP_path,red_crop_name,red_crop_mip_name,red_ObjRecon,2);
 
-    red_ObjRecon = gather(red_ObjRecon);
-    green_ObjRecon = gather(green_ObjRecon);
-    red_Filename_Out = ['Red',num2str(num),'.nii'];
-    green_Filename_Out = ['Green',num2str(num),'.nii'];
-    niftiwrite(red_ObjRecon,fullfile(red_dual_path,red_Filename_Out));
-    niftiwrite(green_ObjRecon,fullfile(green_dual_path,green_Filename_Out));
+    % For Green.
+    green_crop_path = fullfile(file_path_green,'Green_Crop');
+    green_crop_MIP_path = fullfile(file_path_green,'..','back_up','Green_Crop_MIP');
+    green_crop_name = ['Green_Crop_',num2str(num),'.nii'];
+    green_crop_mip_name = ['Green_Crop_MIP_',num2str(num),'.tif'];
+    imageWrite(green_crop_path,green_crop_MIP_path,green_crop_name,green_crop_mip_name,green_ObjRecon,2);
+
+    % For parameters.
+    parameter_path = fullfile(file_path_red,'..','back_up','Parameters');
+    save(fullfile(parameter_path,['Crop_parameter_',num2str(num),'.mat']),'azimuth','elevation','flip_flag','image_size');
 
 end

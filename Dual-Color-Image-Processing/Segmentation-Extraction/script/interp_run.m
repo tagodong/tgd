@@ -7,8 +7,8 @@
 % adpath;
 
 % Set path.
-path_g = '/home/d1/fix/20230928_1617_g8s-lssm-tph2-chri_9dpf/g';
-path_r = '/home/d1/fix/20230928_1617_g8s-lssm-tph2-chri_9dpf/r';
+path_g = '/home/d1/fix/20230928_1652_g8s-lssm-tph2-chri_9dpf/g';
+path_r = '/home/d1/fix/20230928_1652_g8s-lssm-tph2-chri_9dpf/r';
 CalTrace_path = fullfile(path_g,'..','CalTrace');
 if ~exist(CalTrace_path,'dir')
     mkdir(CalTrace_path);
@@ -40,7 +40,7 @@ for j = 1:1
     % load(fullfile(path_g,'../bad_index.mat'),'bad_index_final');
     % bad_index = sort(bad_index_final);
 
-    bad_index = 539;
+    bad_index = [665 704 792 956 967 1378 1427];
     %% Interp the bad index.
     num = 0;
     i = 1;

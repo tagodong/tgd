@@ -39,4 +39,4 @@ niftiwrite(eyes_crop_mean_template,eyes_crop_mean_template_path);
 
 eyesCropTemplate(template_path,start_num,step_size,end_num,num_index,Mask,thread_num);
 
-disp('Eyes crop work has done!!!')
+disp('Eyes crop for templates work has done!!!')

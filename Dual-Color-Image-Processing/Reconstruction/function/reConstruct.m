@@ -1,4 +1,4 @@
-function ObjRecon = reConstruct(imstack,PSF,red_flag)
+function ObjRecon = reConstruct(imstack,PSF)
 %% function summary: reconstruct a frame using RLD.
 
 %  input:
@@ -62,11 +62,6 @@ function ObjRecon = reConstruct(imstack,PSF,red_flag)
 
     end
     
-%% the red image should flip.
-    if red_flag
-        gpuObjRecon=flip(gpuObjRecon,2);
-    end
-
-    ObjRecon=uint16(gpuObjRecon);
+    ObjRecon=uint16(gather(gpuObjRecon));
 
 end

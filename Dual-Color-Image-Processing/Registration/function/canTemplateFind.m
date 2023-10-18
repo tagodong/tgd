@@ -59,8 +59,8 @@ function [candidate_templates,NR_scores,pixels_thresh] = canTemplateFind(MIPs_pa
     [~,opt_NR_id] = min(abs(NR_scores(NR_scores(:,2)<max(opt_inter_NR_mse,[],"omitnan"),1)-opt_NR_score));
 
     %% Save the candidate templates.
-    tempalte_MIPs_path = fullfile(MIPs_path,'Can_Template_MIPs');
-    template_path = fullfile(MIPs_path,'..','template');
+    tempalte_MIPs_path = fullfile(MIPs_path,'Can_Template_MIP');
+    template_path = fullfile(MIPs_path,'..','..','template');
     
     if ~exist(tempalte_MIPs_path,'dir')
         mkdir(tempalte_MIPs_path);
@@ -69,28 +69,25 @@ function [candidate_templates,NR_scores,pixels_thresh] = canTemplateFind(MIPs_pa
 
     for i = 1:length(opt_inter_NR_id)
         can_MIP = imread(fullfile(MIPs_path,Red_MIPs(name_num==sort_name_num(opt_inter_NR_id(i))).name));
-        MIP_name = ['Can_template_MIP_',num2str(sort_name_num(opt_inter_NR_id(i))),'.tif'];
+        MIP_name = ['Can_Template_MIP_',num2str(sort_name_num(opt_inter_NR_id(i))),'.tif'];
         imwrite(can_MIP,fullfile(tempalte_MIPs_path,MIP_name));
         if Red_flag
-            ObjRecon = niftiread(fullfile(MIPs_path,'..','dual_Crop',['Red',num2str(sort_name_num(opt_inter_NR_id(i))),'.nii']));
+            ObjRecon = niftiread(fullfile(MIPs_path,'..','..','r','Red_Crop',['Red_Crop_',num2str(sort_name_num(opt_inter_NR_id(i))),'.nii']));
             niftiwrite(ObjRecon,fullfile(template_path,['Can_template',num2str(sort_name_num(opt_inter_NR_id(i))),'.nii']));
         else
-            ObjRecon = niftiread(fullfile(MIPs_path,'..','dual_Crop',['Green',num2str(sort_name_num(opt_inter_NR_id(i))),'.nii']));
+            ObjRecon = niftiread(fullfile(MIPs_path,'..','..','g','Green_Crop',['Green_Crop_',num2str(sort_name_num(opt_inter_NR_id(i))),'.nii']));
             niftiwrite(ObjRecon,fullfile(template_path,['Can_template',num2str(sort_name_num(opt_inter_NR_id(i))),'.nii']));
         end
     end
 
     if Red_flag
-        ObjRecon = niftiread(fullfile(MIPs_path,'..','dual_Crop',['Red',num2str(sort_name_num(opt_NR_id)),'.nii']));
+        ObjRecon = niftiread(fullfile(MIPs_path,'..','..','r','Red_Crop',['Red_Crop_',num2str(sort_name_num(opt_NR_id)),'.nii']));
         niftiwrite(ObjRecon,fullfile(template_path,'Best_Can_template.nii'));
     else
-        ObjRecon = niftiread(fullfile(MIPs_path,'..','dual_Crop',['Green',num2str(sort_name_num(opt_NR_id)),'.nii']));
+        ObjRecon = niftiread(fullfile(MIPs_path,'..','..','g','Green_Crop',['Green_Crop_',num2str(sort_name_num(opt_NR_id)),'.nii']));
         niftiwrite(ObjRecon,fullfile(template_path,'Best_Can_template.nii'));
     end
     
     candidate_templates = sort_name_num(opt_inter_NR_id);
-    save(fullfile(MIPs_path,'candidate_templates.mat'),'candidate_templates');
-
-    disp('candidate_templates done!');
     
 end

@@ -19,6 +19,25 @@ adpath;
 file_Path_Red = path_r;
 file_Path_Green = path_g;
 
+% mkdir directories.
+if ~exist(fullfile(file_Path_Green,'..','back_up'),"dir")
+
+    % For back up.
+    mkdir(fullfile(file_Path_Green,'..','back_up'));
+    mkdir(fullfile(file_Path_Green,'..','back_up','Parameters'));
+    mkdir(fullfile(file_Path_Green,'..','back_up','Red_Recon'));
+    mkdir(fullfile(file_Path_Green,'..','back_up','Red_Recon_MIP'));
+    mkdir(fullfile(file_Path_Green,'..','back_up','Green_Recon'));
+    mkdir(fullfile(file_Path_Green,'..','back_up','Green_Recon_MIP'));
+    mkdir(fullfile(file_Path_Green,'..','back_up','Green_Crop_MIP'));
+    mkdir(fullfile(file_Path_Green,'..','back_up','Red_Crop_MIP'));
+    
+    % For Computation.
+    mkdir(fullfile(file_Path_Green,'Green_Crop'));
+    mkdir(fullfile(file_Path_Red,'Red_Crop'));
+
+end
+
 % Point spread function.
 % PSF_path_red = '/home/user/RG-corr/PSFr210825.mat';
 PSF_path_red = '/home/user/tgd/Dual-Color-Image-Processing/data/PSF/PSF_R.mat';
@@ -32,7 +51,7 @@ atlas_path = '/home/user/tgd/Dual-Color-Image-Processing/data/Atlas/Ref-zbb2.nii
 atlas = niftiread(atlas_path);
 
 % Affine transform between the green and the red.
-load('/home/user/tgd/Dual-Color-Image-Processing/data/Transform/Affine_G2R.mat','tform');
+load('/home/user/tgd/Dual-Color-Image-Processing/data/Transform/tform_231017.mat','tform');
 
 % set the output size which was cropped.
 crop_size = [400,308,210];
@@ -63,5 +82,10 @@ end
 
 % Run reconstruction and crop the black background.
 tic;
-reConstruction(file_Path_Red,file_Path_Green,red_flag,heart_flag,red_PSF,green_PSF,atlas,crop_size,start_num,step_size,end_num,tform,x_shift,gpu_index);
+    reConstruction(file_Path_Red,file_Path_Green,red_flag,heart_flag,red_PSF,green_PSF,atlas,crop_size,start_num,step_size,end_num,tform,x_shift,gpu_index);
 toc;
+
+save(fullfile(file_Path_Green,'..','back_up','Parameters','base.mat'),'red_flag','heart_flag','red_PSF','green_PSF','atlas', ...
+    'crop_size','start_num','step_size','end_num','tform','x_shift');
+
+disp('Reconstruction has done.');

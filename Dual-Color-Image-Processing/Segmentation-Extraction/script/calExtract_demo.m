@@ -3,8 +3,8 @@
 %% Segment brain regions using Correlation Map method and extract the calcium trace.
 
 % set path.
-path_g = '/home/d1/fix/20230928_1541_g8s-lssm-tph2-chri_9dpf/g';
-path_r = '/home/d1/fix/20230928_1541_g8s-lssm-tph2-chri_9dpf/r';
+path_g = '/home/d1/fix/20230928_1652_g8s-lssm-tph2-chri_9dpf/g';
+path_r = '/home/d1/fix/20230928_1652_g8s-lssm-tph2-chri_9dpf/r';
 CalTrace_path = fullfile(path_g,'..','CalTrace');
 if ~exist(CalTrace_path,'dir')
     mkdir(CalTrace_path);
@@ -13,8 +13,8 @@ end
 path_files_g = getsubfolders(path_g);
 path_files_r = getsubfolders(path_r);
 
-start_frame = 324;
-end_frame = 1199;
+start_frame = 599;
+end_frame = 1469;
 
 for j = 1:1
 
@@ -55,9 +55,8 @@ for j = 1:1
     % extract the red trace.
     batch_size = 1;
     write_flag = 1;
-    [R_trace,Coherence_R] = traceExtract(file_path_red,pre_name_red,value_name_red,seg_regions,water_corMap_filter,info_data,start_frame,batch_size,end_frame,write_flag);
+    R_trace = traceExtract(file_path_red,pre_name_red,value_name_red,seg_regions,water_corMap_filter,info_data,start_frame,batch_size,end_frame,write_flag);
     save(fullfile(CalTrace_path,'R_trace.mat'),'R_trace');
-    save(fullfile(CalTrace_path,'R_Coherence.mat'),'Coherence_R');
     disp('Red trace done.');
     toc;
 end

@@ -38,4 +38,4 @@ end
 % demons registration for mean template.
 demonsRegistTemplate(template_path,start_num,step_size,end_num,num_index,refer_image,gpu_index);
 
-disp('Demons registration work has done!');
+disp('Demons registration for templates work has done!');

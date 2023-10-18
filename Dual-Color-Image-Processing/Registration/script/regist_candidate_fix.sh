@@ -8,17 +8,12 @@ path_g=$1
 path_r=$2
 red_flag=$3
 heart_flag=$4
-red_path=${path_r}/dual_Crop
-green_path=${path_g}/dual_Crop
-
-if [ $red_flag -eq 0 ]; then
-    template_path=${path_g}/template
-else
-    template_path=${path_r}/template
-    mkdir $template_path
-
+red_path=${path_r}/Red_Crop
+green_path=${path_g}/Green_Crop
+template_path=${path_g}/../template
+if [ $red_flag -eq 1 ]; then
     if [ $heart_flag -eq 0 ]; then
-        Green_template_path=${path_r}/template/Green_template
+        Green_template_path=${template_path}/Green_template
         mkdir ${Green_template_path}
     fi
 fi
@@ -73,7 +68,7 @@ cmtk reformatx -o ${template_path}/Best_mean_template.nii --floating ${template_
 
 ###### Regist candidate templates.
 # Read the red images.
-Affine_template_path=${template_path}/affine_template
+Affine_template_path=${template_path}/Affine_template
 file_name=$(ls $template_path/Can_template*.nii);
 file_name=(${file_name//,/ });
 len=$(ls -l $template_path/Can_template*.nii | grep "^-" | wc -l);
@@ -99,7 +94,7 @@ do
 
     # Regist Green which was used for crop eyes.
     if [ $heart_flag -eq 0 -a $red_flag -eq 1 ]; then
-        cmtk reformatx -o ${Green_template_path}/Green_Can_template_affine${k}.nii --floating ${green_path}/Green${k}.nii ${template_path}/Best_mean_template.nii ${Affine_template_path}/affine${k}.xform
+        cmtk reformatx -o ${Green_template_path}/Green_Can_template_affine${k}.nii --floating ${green_path}/Green_Crop_${k}.nii ${template_path}/Best_mean_template.nii ${Affine_template_path}/affine${k}.xform
     fi
 
     end_time=$(date +%s)
@@ -116,22 +111,22 @@ if [ $heart_flag -eq 0 -a $red_flag -eq 1 ]; then
     cmtk average_images --avg --outfile-name ${template_path}/Green_affine_mean_template.nii ${Green_template_path}/Green_Can_template_affine*.nii
     mean_template=${template_path}/Green_affine_mean_template.nii
 fi
-matlab -nodesktop -nosplash -r "input = '${mean_template}'; output = '${mean_template}'; myushort; quit"
+matlab -nodesktop -nosplash -r "input = '${mean_template}'; output = '${mean_template}'; myunshort; quit"
 
 ##### Run inverse nonrigid registration to make crop-eyes-MASK.
 start_time=$(date +%s)
 
 antsRegistration -d 3 --float 1 -o [${template_path}/Rigid_,${template_path}/zbb_Rigid.nii.gz] \
--t Rigid[0.1] -m GC[$mean_template,$zbbfish,1,32,Regular,0.25]  \
--c [200x200x200x100,1e-8,10] -f 12x8x4x2 -s 4x3x2x1
+-t Rigid[0.1] -m MI[$mean_template,$zbbfish,1,32,Regular,0.25]  \
+-c [200x200x100,1e-8,10] -f 8x4x2 -s 3x2x1
 
 antsRegistration -d 3 --float 1 -o [${template_path}/Affine_,${template_path}/zbb_Affine.nii.gz] \
--t Affine[0.1] -m GC[$mean_template,${template_path}/zbb_Rigid.nii.gz,1,32,Regular,0.25]  \
--c [200x200x200x100,1e-8,10] -f 12x8x4x2 -s 4x3x2x1
+-t Affine[0.1] -m MI[$mean_template,${template_path}/zbb_Rigid.nii.gz,1,32,Regular,0.25]  \
+-c [200x200x100,1e-8,10] -f 8x4x2 -s 3x2x1
 
 antsRegistration -d 3 --float 1 -o [${template_path}/SyN_,${template_path}/zbb_SyN.nii.gz] \
--t SyN[0.05,6,0.5] -m CC[$mean_template,${template_path}/zbb_Affine.nii.gz,1,2]  \
--c [200x200x200x200x10,1e-7,10] -f 12x8x4x2x1 -s 4x3x2x1x0
+-t SyN[0.05,6,0.4] -m CC[$mean_template,${template_path}/zbb_Affine.nii.gz,1,2]  \
+-c [200x200x200x10,1e-7,10] -f 8x4x2x1 -s 3x2x1x0
 
 end_time=$(date +%s)
 cost_time=$[ $end_time-$start_time ]
@@ -146,57 +141,51 @@ matlab -nodesktop -nosplash -r "template_path = '${template_path}'; demonsRegist
 
 ###### Average all the candidate templates.
 cmtk average_images --avg --outfile-name ${template_path}/mean_template.nii ${template_path}/template_demons/template_demons*.nii
+matlab -nodesktop -nosplash -r "input = '${mean_template}'; output = '${mean_template}'; myunshort; quit"
 
 ##### Regist to mean template.
 # Set the output green chanel image directory path that is registered.
-regist_red_path=${path_r}/regist_red
+regist_red_path=${path_r}/Red_Registration
 mkdir $regist_red_path
-regist_green_path=${path_g}/regist_green
+regist_green_path=${path_g}/Green_Registration
 mkdir $regist_green_path
 
 # Set the mean template path.
 mean_template=${template_path}/mean_template.nii
 
-# Set the output green chanel image directory path that is registered.
-regist_red_path=${path_r}/regist_red
-mkdir $regist_red_path
-regist_green_path=${path_g}/regist_green
-mkdir $regist_green_path
-regist_green_path_new=${path_g}/regist_green_new
-mkdir $regist_green_path_new
+# Back up the mean_tempalte.
+back_up_template_path=${template_path}/../back_up/template
+back_up_affine_path=${template_path}/../back_up/Affine
+mkdir ${back_up_template_path}
+mkdir ${back_up_affine_path}
+cp ${mean_template} ${back_up_template_path}/mean_template.nii
 
 # Run affine registration.
-red_path=${path_r}/dual_Crop
 if [ $red_flag -eq 1 ]; then
 
-    green_path=${path_g}/dual_Crop
-    green_path_new=${path_g}/dual_Crop_new
-    file_name=$(ls ${green_path}/Green*.nii);
+    file_name=$(ls ${green_path}/Green_Crop_*.nii);
     file_name=(${file_name//,/ });
-    len=$(ls -l ${green_path}/Green*.nii | grep "^-" | wc -l);
+    len=$(ls -l ${green_path}/Green_Crop_*.nii | grep "^-" | wc -l);
 
     for ((i=0;i<$len;i=i+1))
     do
         name_num=$(basename -s .nii ${file_name[$i]});
         
         # Set k to the number of the name.
-        # k=${name_num:9};
-        k=${name_num:5};
+        k=${name_num:11};
 
         start_time=$(date +%s)
 
         # Initialize affine matrix.
-        cmtk make_initial_affine --principal-axes $mean_template ${red_path}/Red${k}.nii ${red_path}/initial${k}.xform
+        cmtk make_initial_affine --principal-axes $mean_template ${red_path}/Red_Crop_${k}.nii ${red_path}/initial${k}.xform
         
         # Generate affine matrix.
-        cmtk registration --initial ${red_path}/initial${k}.xform --dofs 6,12 --exploration 8 -s 0.25 --accuracy 0.05 --cr -o ${red_path}/affine${k}.xform $mean_template ${red_path}/Red${k}.nii
+        cmtk registration --initial ${red_path}/initial${k}.xform --dofs 6,12 --exploration 8 -s 0.25 --accuracy 0.05 --cr -o ${back_up_affine_path}/affine${k}.xform $mean_template ${red_path}/Red_Crop_${k}.nii
 
         # Apply affine matrix.
-        cmtk reformatx -o ${regist_red_path}/regist_red_1_${k}.nii --floating ${red_path}/Red${k}.nii $mean_template ${red_path}/affine${k}.xform
-        # cmtk reformatx -o ${regist_green_path}/regist_green_1_${k}.nii --floating ${green_path}/Green_G2R${k}.nii $mean_template ${red_path}/affine${k}.xform
-        cmtk reformatx -o ${regist_green_path}/regist_green_1_${k}.nii --floating ${green_path}/Green${k}.nii $mean_template ${red_path}/affine${k}.xform
-
-        cmtk reformatx -o ${regist_green_path_new}/regist_green_1_${k}.nii --floating ${green_path_new}/Green${k}.nii $mean_template ${red_path}/affine${k}.xform
+        cmtk reformatx -o ${regist_red_path}/Red_Affine_${k}.nii --floating ${red_path}/Red_Crop_${k}.nii $mean_template ${back_up_affine_path}/affine${k}.xform
+        # cmtk reformatx -o ${regist_green_path}/regist_green_${k}.nii --floating ${green_path}/Green_G2R${k}.nii $mean_template ${red_path}/affine${k}.xform
+        cmtk reformatx -o ${regist_green_path}/Green_Affine_${k}.nii --floating ${green_path}/Green_Crop_${k}.nii $mean_template ${back_up_affine_path}/affine${k}.xform
 
         end_time=$(date +%s)
         cost_time=$[ $end_time-$start_time ]
@@ -206,29 +195,29 @@ if [ $red_flag -eq 1 ]; then
     done
 
 else
-    green_path=${path_g}/dual_Crop
-    file_name=$(ls ${green_path}/Green*.nii);
+
+    file_name=$(ls ${green_path}/Green_Crop_*.nii);
     file_name=(${file_name//,/ });
-    len=$(ls -l ${green_path}/Green*.nii | grep "^-" | wc -l);
+    len=$(ls -l ${green_path}/Green_Crop_*.nii | grep "^-" | wc -l);
 
     for ((i=0;i<$len;i=i+1))
     do
         name_num=$(basename -s .nii ${file_name[$i]});
         
         # Set k to the number of the name.
-        k=${name_num:5};
+        k=${name_num:11};
 
         start_time=$(date +%s)
 
         # Initialize affine matrix.
-        cmtk make_initial_affine --principal-axes $mean_template ${green_path}/Green${k}.nii ${green_path}/initial${k}.xform
+        cmtk make_initial_affine --principal-axes $mean_template ${green_path}/Green_Crop_${k}.nii ${green_path}/initial${k}.xform
         
         # Generate affine matrix.
-        cmtk registration --initial ${green_path}/initial${k}.xform --dofs 6,12 --exploration 8 -s 0.25 --accuracy 0.05 --cr -o ${green_path}/affine${k}.xform $mean_template ${green_path}/Green${k}.nii
+        cmtk registration --initial ${green_path}/initial${k}.xform --dofs 6,12 --exploration 8 -s 0.25 --accuracy 0.05 --cr -o ${back_up_affine_path}/affine${k}.xform $mean_template ${green_path}/Green_Crop_${k}.nii
 
         # Apply affine matrix.
-        cmtk reformatx -o ${regist_red_path}/regist_red_1_${k}.nii --floating ${red_path}/Red${k}.nii $mean_template ${green_path}/affine${k}.xform
-        cmtk reformatx -o ${regist_green_path}/regist_green_1_${k}.nii --floating ${green_path}/Green${k}.nii $mean_template ${green_path}/affine${k}.xform
+        cmtk reformatx -o ${regist_red_path}/Red_Affine_${k}.nii --floating ${red_path}/Red_Crop_${k}.nii $mean_template ${back_up_affine_path}/affine${k}.xform
+        cmtk reformatx -o ${regist_green_path}/Green_Affine_${k}.nii --floating ${green_path}/Green_Crop_${k}.nii $mean_template ${back_up_affine_path}/affine${k}.xform
 
         end_time=$(date +%s)
         cost_time=$[ $end_time-$start_time ]

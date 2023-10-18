@@ -25,15 +25,15 @@ function demonRegist(file_path_red,file_path_green,red_flag,start_frame,step_siz
     spmd_num = ceil((end_frame-start_frame+1)/step_size/thread_num);
 
     % create non-rigid nii directory.
-    red_regist_path = fullfile(file_path_red,'red_demons');
-    red_regist_MIPs_path = fullfile(file_path_red,'red_demons_MIPs');
-    green_regist_path = fullfile(file_path_green,'green_demons');
-    green_regist_MIPs_path = fullfile(file_path_green,'green_demons_MIPs');
-    if ~exist(green_regist_path,"dir")
-        mkdir(green_regist_path);
-        mkdir(red_regist_path);
-        mkdir(red_regist_MIPs_path);
-        mkdir(green_regist_MIPs_path);
+    red_demons_path = fullfile(file_path_red,'Red_Demons');
+    red_demons_MIPs_path = fullfile(file_path_red,'..','..','back_up','Red_Demons_MIP');
+    green_demons_path = fullfile(file_path_green,'Green_Demons');
+    green_demons_MIPs_path = fullfile(file_path_green,'..','..','back_up','Green_Demons_MIP');
+    if ~exist(green_demons_path,"dir")
+        mkdir(red_demons_path);
+        mkdir(red_demons_MIPs_path);
+        mkdir(green_demons_path);
+        mkdir(green_demons_MIPs_path);
     end
 
     % run non-regid registration.

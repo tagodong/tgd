@@ -24,19 +24,18 @@ function eyesCrop_Mask(file_path_red,file_path_green,start_frame,step_size,end_f
     spmd_num = ceil((end_frame-start_frame+1)/step_size/thread_num);
 
     % create output directory.
-    red_crop_path = fullfile(file_path_red,'red_eyes_crop');
-    green_crop_path = fullfile(file_path_green,'green_eyes_crop');
-    red_crop_MIPs_path = fullfile(file_path_red,'red_eyes_crop_MIPs');
-    green_crop_MIPs_path = fullfile(file_path_green,'green_eyes_crop_MIPs');
-    if ~exist(red_crop_path,"dir")
-        mkdir(red_crop_path);
-        mkdir(green_crop_path);
-        mkdir(red_crop_MIPs_path);
-        mkdir(green_crop_MIPs_path);
+    red_mask_path = fullfile(file_path_red,'Red_Mask');
+    green_mask_path = fullfile(file_path_green,'Green_Mask');
+    red_mask_MIPs_path = fullfile(file_path_red,'..','..','back_up','Red_Mask_MIP');
+    green_mask_MIPs_path = fullfile(file_path_green,'..','..','back_up','Green_Mask_MIP');
+    if ~exist(red_mask_path,"dir")
+        mkdir(red_mask_path);
+        mkdir(green_mask_path);
+        mkdir(red_mask_MIPs_path);
+        mkdir(green_mask_MIPs_path);
     end
 
     % run eyes crop using mask.
-    tic;
     spmd
         if start_frame+(spmd_num*spmdIndex-1)*step_size <= end_frame
             cropEye_Mask(file_path_red,file_path_green,start_frame+spmd_num*(spmdIndex-1)*step_size,step_size,start_frame+(spmd_num*spmdIndex-1)*step_size,num_index,Mask);
@@ -44,6 +43,6 @@ function eyesCrop_Mask(file_path_red,file_path_green,start_frame,step_size,end_f
             cropEye_Mask(file_path_red,file_path_green,start_frame+spmd_num*(spmdIndex-1)*step_size,step_size,end_frame,num_index,Mask);
         end
     end
-    toc;
+
     
 end

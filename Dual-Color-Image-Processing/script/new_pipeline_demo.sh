@@ -15,15 +15,14 @@ do
 
 	###### Run the registration pepline.
 	# Run reconstruction.
-	if [ $i -ne 0 ]; then
-		cd /home/user/tgd/Dual-Color-Image-Processing/Reconstruction/script/
-		matlab -nodesktop -nosplash -r "path_g = '${Path_g}'; path_r = '${Path_r}'; red_flag = $Red_flag; heart_flag = $heart_flag; start_num = 325; end_num = 1200; x_shift = 80; recon_demo; quit"
+	cd /home/user/tgd/Dual-Color-Image-Processing/Reconstruction/script/
+	matlab -nodesktop -nosplash -r "path_g = '${Path_g}'; path_r = '${Path_r}'; red_flag = $Red_flag; heart_flag = $heart_flag; start_num = 325; end_num = 1200; x_shift = 80; recon_demo; quit"
 
-		###### Generate mean_template.
-		# Find candidate templates.
-		cd /home/user/tgd/Dual-Color-Image-Processing/Registration/script/
-		matlab -nodesktop -nosplash -r "path_g = '${Path_g}'; path_r = '${Path_r}'; red_flag = $Red_flag; canTemplateFind_run; quit"
-	fi
+	###### Generate mean_template.
+	# Find candidate templates.
+	cd /home/user/tgd/Dual-Color-Image-Processing/Registration/script/
+	matlab -nodesktop -nosplash -r "path_g = '${Path_g}'; path_r = '${Path_r}'; red_flag = $Red_flag; canTemplateFind_run; quit"
+	
 	# Run Registration for candidate templates.
 	cd /home/user/tgd/Dual-Color-Image-Processing/Registration/script/
 	if [ $fix_flag -eq 1 ]; then
