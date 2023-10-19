@@ -63,6 +63,8 @@ function registDemons(file_path_red,file_path_green,red_flag,start_frame,step_si
         green_demons_MIPs_name = ['Green_Demons_MIP_',num2str(i),'.tif'];
         imageWrite(green_demons_path,green_demons_MIPs_path,green_demons_name,green_demons_MIPs_name,green_demons,1);
 
+        save(fullfile(file_path_green,'..','..','back_up','Parameters',['D',num2str(i),'mat']),'D');
+
         disp(['Green_Demons','_',num2str(i),'.tif done!']);
         toc;
 

@@ -5,28 +5,29 @@
 % set path.
 path_g = '/home/d1/fix/20230928_1652_g8s-lssm-tph2-chri_9dpf/g';
 path_r = '/home/d1/fix/20230928_1652_g8s-lssm-tph2-chri_9dpf/r';
-CalTrace_path = fullfile(path_g,'..','CalTrace');
-if ~exist(CalTrace_path,'dir')
-    mkdir(CalTrace_path);
-end
-
-path_files_g = getsubfolders(path_g);
-path_files_r = getsubfolders(path_r);
 
 start_frame = 599;
 end_frame = 1469;
 
+CalTrace_path = fullfile(path_g,'..','back_up','CalTrace');
+if ~exist(CalTrace_path,'dir')
+    mkdir(CalTrace_path);
+end
+
+% path_files_g = getsubfolders(path_g);
+% path_files_r = getsubfolders(path_r);
+
 for j = 1:1
 
-    file_path_red = fullfile(path_r,'regist_red/red_demons/');
+    file_path_red = fullfile(path_r,'Red_Registration/Red_Demons/');
 
-    file_path_green = fullfile(path_g,'regist_green/green_demons/');
+    file_path_green = fullfile(path_g,'Green_Registration/Green_Demons/');
 
     % set the prefix name and value name of images.
-    pre_name_green = 'demons_green_3_';
-    value_name_green = 'green_demons';
-    pre_name_red = 'demons_red_3_';
-    value_name_red = 'red_demons';
+    pre_name_green = 'Red_Demons_';
+    value_name_green = 'ObjRecon';
+    pre_name_red = 'Green_Demons_';
+    value_name_red = 'ObjRecon';
 
     % set the distance between two adjacent brain voxels for calculating correlation.
     ad_dist = 3;

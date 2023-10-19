@@ -85,7 +85,6 @@ tic;
     reConstruction(file_Path_Red,file_Path_Green,red_flag,heart_flag,red_PSF,green_PSF,atlas,crop_size,start_num,step_size,end_num,tform,x_shift,gpu_index);
 toc;
 
-save(fullfile(file_Path_Green,'..','back_up','Parameters','base.mat'),'red_flag','heart_flag','red_PSF','green_PSF','atlas', ...
-    'crop_size','start_num','step_size','end_num','tform','x_shift');
+save(fullfile(file_Path_Green,'..','back_up','Parameters','base.mat'),'heart_flag','tform');
 
 disp('Reconstruction has done.');

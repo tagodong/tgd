@@ -13,23 +13,11 @@ function nii2Mip(file_path)
     for i = 1:length(tif_names)
 
         % split the image num.
-        
-        % for regist_red_1_*.nii 
-        name_prex = split(tif_names{i},'.');
-        name_prex = split(name_prex{1},'_');
-        name_num = name_prex{4};
-
-        % for template*.nii
-        % name = tif_names{i};
-        % name_num = name(isstrprop(name,"digit"));
-        % name_num = num(i);
+        name = tif_names{i};
+        name_num = name(isstrprop(name,"digit"));
         Mip_name = ['MIP','_',num2str(name_num),'.tif'];
-        % Mip_name = ['MIP','_',name_num(14:end),'.tif'];
-        % Mip_name = ['MIP','_',name_num(9:end),'.tif'];
         
         % read the nii image.
-        % file_name = ['regist_red_1_',num2str(name_num),'.nii'];
-        % ObjRecon = niftiread(fullfile(file_path,file_name));
         ObjRecon = niftiread(fullfile(file_path,tif_names{i}));
     
         % compute the MIP image.
@@ -38,8 +26,8 @@ function nii2Mip(file_path)
         imwrite(uint16(MIPs),fullfile(file_path,'mip',Mip_name));
 
         % display the progress
-        % option = struct('indicator','=','prefix','progress:');
         disp(i/length(tif_names));
+        
     end
     
 end

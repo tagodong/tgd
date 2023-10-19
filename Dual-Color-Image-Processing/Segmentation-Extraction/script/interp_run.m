@@ -9,7 +9,7 @@
 % Set path.
 path_g = '/home/d1/fix/20230928_1652_g8s-lssm-tph2-chri_9dpf/g';
 path_r = '/home/d1/fix/20230928_1652_g8s-lssm-tph2-chri_9dpf/r';
-CalTrace_path = fullfile(path_g,'..','CalTrace');
+CalTrace_path = fullfile(path_g,'..','back_up','CalTrace');
 if ~exist(CalTrace_path,'dir')
     mkdir(CalTrace_path);
 end
@@ -19,14 +19,14 @@ path_files_r = getsubfolders(path_r);
 for j = 1:1
 
     % file_path_red = fullfile(path_r,path_files_r{j},'regist_red/crop_red_demons/');
-    file_path_red = fullfile(path_r,'regist_red/red_demons/');
+    file_path_red = fullfile(path_r,'Red_Registration','Red_Demons');
 
     % file_path_green = fullfile(path_g,path_files_g{j},'regist_green/crop_green_demons/');
-    file_path_green = fullfile(path_g,'regist_green/green_demons/');
+    file_path_green = fullfile(path_g,'Green_Registration','Green_Demons');
  
     % Set prefix name of image.
-    pre_name_red = 'demons_red_3_';
-    pre_name_green = 'demons_green_3_';
+    pre_name_red = 'Red_Demons_';
+    pre_name_green = 'Green_Demons_';
 
     % Check the bad image index in person and write them down here.
 
@@ -41,6 +41,7 @@ for j = 1:1
     % bad_index = sort(bad_index_final);
 
     bad_index = [665 704 792 956 967 1378 1427];
+
     %% Interp the bad index.
     num = 0;
     i = 1;

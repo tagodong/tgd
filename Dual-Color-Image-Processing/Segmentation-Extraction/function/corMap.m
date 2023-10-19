@@ -141,4 +141,4 @@ function [CalTrace,Coherence,seg_regions,water_corMap_filter,info_data] = corMap
     [CalTrace,Coherence] = traceExtract(file_path,pre_name,value_name,seg_regions,water_corMap_filter,info_data,start_frame,batch_size,end_frame,write_flag);
     disp('Second extraction done.');
     
-    end
+end

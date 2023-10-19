@@ -1,4 +1,4 @@
-function tif_name = sortName(tif_files)
+function [tif_name,name_num] = sortName(tif_files)
     
     name_num = zeros(length(tif_files),1);
     for i = 1:length(tif_files)

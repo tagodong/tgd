@@ -10,4 +10,5 @@ function [out_data,idx_index] = isoRm(in_data)
     idx_index = find(idx);
     in_data(idx) = nan;
     out_data = in_data;
+    
 end

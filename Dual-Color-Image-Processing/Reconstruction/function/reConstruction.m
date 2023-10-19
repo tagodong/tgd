@@ -23,8 +23,8 @@ function reConstruction(file_path_red,file_path_green,red_flag,heart_flag,red_PS
 
 %% Read the image and run reConstruct function to construct image.
     gpu_num = length(gpu_index);
-    all_tifs = sortName(file_path_red);
-    all_tifs_g = sortName(file_path_green);
+    all_tifs = sortName(dir(fullfile(file_path_red,'*.tif')));
+    all_tifs_g = sortName(dir(fullfile(file_path_green,'*.tif')));
     disp(all_tifs_g);
     spmd_num = ceil((end_frame-start_frame+1)/step_size/gpu_num);
 

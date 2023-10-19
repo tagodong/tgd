@@ -159,6 +159,7 @@ back_up_affine_path=${template_path}/../back_up/Affine
 mkdir ${back_up_template_path}
 mkdir ${back_up_affine_path}
 cp ${mean_template} ${back_up_template_path}/mean_template.nii
+cp ${template_path}/zbb_Affine.nii.gz ${back_up_template_path}/zbb_Affine.nii.gz
 
 # Run affine registration.
 if [ $red_flag -eq 1 ]; then

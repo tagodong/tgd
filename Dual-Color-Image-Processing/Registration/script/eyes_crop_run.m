@@ -14,7 +14,6 @@ adpath;
 file_path_red = fullfile(path_r,'Red_Registration');
 file_path_green = fullfile(path_g,'Green_Registration');
 
-
 template_path = fullfile(path_g,'..','template');
 
 if ~exist('Mask_path','var')
