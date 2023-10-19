@@ -1,4 +1,4 @@
-function [CalTrace_save,Coherence]=traceExtract2(file_path,pre_name,value_name,seg_regions,water_corMap,info_data,start_frame,batch_size,end_frame,write_flag,boat_interval_final)
+function [CalTrace_save,Coherence]=traceExtract_rect(file_path,pre_name,seg_regions,water_corMap,info_data,start_frame,batch_size,end_frame,write_flag)
     %% function summary: extract calcium traces and calculate coherence.
     
     %  input:
@@ -19,32 +19,32 @@ function [CalTrace_save,Coherence]=traceExtract2(file_path,pre_name,value_name,s
         num_voxels = size(seg_regions,1);
         num_regions = size(seg_regions,2);
         T = end_frame - start_frame + 1;
-        input_extend = '.mat';
+        input_extend = '.nii';
     
         %% Calculate the mean of brain regions as the calcium trace.
-        CalTrace = zeros(num_regions,T,"single",'gpuArray');
+        CalTrace = zeros(num_regions,T,"single");
         for ff=start_frame:batch_size:end_frame
-            Y_r = zeros(num_voxels,min([end_frame,ff+batch_size-1])-ff+1,"single",'gpuArray'); % load a batch
+            tic;
+            Y_r = zeros(num_voxels,min([end_frame,ff+batch_size-1])-ff+1,"single"); % load a batch
             for i=ff:min([end_frame,ff+batch_size-1])
-                load(fullfile(file_path,[pre_name,num2str(boat_interval_final(i)),input_extend]),value_name);
-                Y_r(:,i-ff+1) = reshape(gpuArray(single(eval(value_name))),[num_voxels,1]);
+                ObjRecon = niftiread(fullfile(file_path,[pre_name,num2str(i),input_extend]));
+                Y_r(:,i-ff+1) = reshape(single(ObjRecon),[num_voxels,1]);
             end
             for k=1:num_regions
                 temp = Y_r(seg_regions(:,k)>0,:);
                 CalTrace(k,(ff:min([end_frame,ff+batch_size-1]))-start_frame+1) = mean(temp,1);
             end
+            toc;
+            disp(ff);
         end
-        CalTrace_save = gather(CalTrace);
-        if write_flag
-            CalTrace = gather(CalTrace);
-            save(fullfile(file_path,'CalTrace.mat'),'CalTrace');
-        end
-        
+        CalTrace_save = CalTrace;
+        disp('CalTrace has been extracted.')
+    
         clear temp;
         clear Y_r;
         
         %% calculate the coherence map
-        load(fullfile(file_path,[pre_name,num2str(boat_interval_final(start_frame)),input_extend]),value_name);
+        ObjRecon = niftiread(fullfile(file_path,[pre_name,num2str(start_frame),input_extend]));
     
         %% normalize CalTrace
         CalTrace = CalTrace - mean(CalTrace,2);
@@ -53,11 +53,11 @@ function [CalTrace_save,Coherence]=traceExtract2(file_path,pre_name,value_name,s
         CalTrace = CalTrace./SD_CalTrace;
         
         %% calculate coherence.
-        Coherence = zeros(size(eval(value_name)),"single",'gpuArray');
+        Coherence = zeros(size(ObjRecon),"single");
         % [d1,d2,d3] = size(eval(value_name));
         for t=1:T
-            load(fullfile(file_path,[pre_name,num2str(boat_interval_final(t+start_frame-1)),input_extend]),value_name);
-            temp = zeros(size(Coherence),'single','gpuArray');
+            ObjRecon = niftiread(fullfile(file_path,[pre_name,num2str(t+start_frame-1),input_extend]));
+            temp = zeros(size(Coherence),'single');
             temp(water_corMap~=0) = CalTrace(water_corMap(water_corMap~=0),t);
             
             % temp = zeros(size(Coherence));
@@ -76,13 +76,12 @@ function [CalTrace_save,Coherence]=traceExtract2(file_path,pre_name,value_name,s
             % disp(isgpuarray(temp));
             % disp(sum(temp == temp1,"all"));
     
-            Coherence = Coherence + (gpuArray(single(eval(value_name)))-info_data.F_mean).*temp;
+            Coherence = Coherence + (single(ObjRecon)-info_data.F_mean).*temp;
         end
         Coherence = Coherence./info_data.SD;
         Coherence = Coherence/T;
-        Coherence = gather(Coherence);
     
-        clear eval(value_name);
+        clear ObjRecon;
         
         if write_flag
             save(fullfile(file_path,'Coherence.mat'),'Coherence');

@@ -13,7 +13,7 @@ function mat2nii(file_path,prefix_name)
         name_num = alltifs{i};
         num = str2double(name_num(isstrprop(name_num,"digit")));
  
-        load(fullfile(file_path,['prefix_name',num2str(num),'.mat']),'ObjRecon');
+        load(fullfile(file_path,[prefix_name,num2str(num),'.mat']),'ObjRecon');
         
         niftiwrite(ObjRecon,fullfile(file_nii_path,[prefix_name,num2str(num),'.nii']));
 
