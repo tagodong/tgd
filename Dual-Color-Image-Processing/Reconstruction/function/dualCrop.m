@@ -29,8 +29,10 @@ function dualCrop(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path
     % green_ObjRecon = gpuArray(green_ObjRecon);
     mean_thresh = 20;
 
+    rotation_flag = 0;
     red_BW_ObjRecon = red_ObjRecon > mean(mean(mean(red_ObjRecon,'omitnan')+mean_thresh,'omitnan'),'omitnan');
     if sum(red_BW_ObjRecon,'all') > 10^6
+        rotation_flag = 1;
         [cor_x,cor_y,cor_z] = ind2sub(size(red_BW_ObjRecon),find(red_BW_ObjRecon));
         cor_coef = pca([cor_x,cor_y,cor_z]);
         [angle_azimuth,angel_elevation] = cart2sph(cor_coef(1,1),cor_coef(2,1),cor_coef(3,1));
@@ -149,6 +151,11 @@ function dualCrop(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path
 
     % For parameters.
     parameter_path = fullfile(file_path_red,'..','back_up','Parameters');
-    save(fullfile(parameter_path,['Crop_parameter_',num2str(num),'.mat']),'angle_azimuth','angel_elevation','flip_flag','image_size');
 
+    if rotation_flag == 1
+        save(fullfile(parameter_path,['Crop_parameter_',num2str(num),'.mat']),'angle_azimuth','angel_elevation','flip_flag','image_size','rotation_flag');
+    else
+        save(fullfile(parameter_path,['Crop_parameter_',num2str(num),'.mat']),'image_size','rotation_flag');
+    end
+    
 end

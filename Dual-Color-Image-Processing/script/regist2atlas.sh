@@ -3,7 +3,7 @@
 ## Transform meantemplate to atlas.
 file_dir='/home/d1/blueLaser'
 red_flag=1
-start_num=(324 324 324 324)
+start_num=(1199 324 324 324)
 end_num=(1199 1199 1199 1199)
 
 zbb_atlas="/home/user/tgd/Dual-Color-Image-Processing/data/Atlas/Ref-zbb2.nii"
@@ -12,7 +12,6 @@ file_name=$(ls $file_dir);
 file_name=(${file_name//,/ });
 for ((i=1;i<${#file_name[*]};i=i+1))
 do
-
     regist_out_path=$file_dir/${file_name[$i]}/regist2atlas
     mkdir $regist_out_path
     if [ $red_flag -eq 1 ];then
@@ -22,16 +21,16 @@ do
     fi
 
     cd /home/user/tgd/Dual-Color-Image-Processing/Registration/script
-    matlab -nodesktop -nosplash -r "input = '${mean_template}'; output = '${mean_template}'; myunshort; quit"
+    # matlab -nodesktop -nosplash -r "input = '${mean_template}'; output = '${mean_template}'; myunshort; quit"
 
     ##### Run registration for mean-template to atlas.
     start_time=$(date +%s)
 
-    antsRegistration -d 3 --float 1 -o [${regist_out_path}/mean2atlas_,${regist_out_path}/mean2atlas_warped.nii.gz] -n WelchWindowedSinc \
-    -u 0 -r [$zbb_atlas,$mean_template,1] -t Rigid[0.1] -m MI[$zbb_atlas,$mean_template,1,32,Regular,0.25] \
-    -c [200x200x0,1e-8,10] -f 8x4x2 -s 3x2x1vox -t Affine[0.1] -m MI[$zbb_atlas,$mean_template,1,32,Regular,0.25] \
-    -c [200x200x0,1e-8,10] -f 8x4x2 -s 3x2x1vox -t SyN[0.05,6,0.5] -m CC[$zbb_atlas,$mean_template,1,2] -c [200x200x200x10,1e-7,10] \
-    -f 8x4x2x1 -s 3x2x1x0vox
+    # antsRegistration -d 3 --float 1 -o [${regist_out_path}/mean2atlas_,${regist_out_path}/mean2atlas_warped.nii.gz] -n WelchWindowedSinc \
+    # -u 0 -r [$zbb_atlas,$mean_template,1] -t Rigid[0.1] -m MI[$zbb_atlas,$mean_template,1,32,Regular,0.25] \
+    # -c [200x200x0,1e-8,10] -f 8x4x2 -s 3x2x1vox -t Affine[0.1] -m MI[$zbb_atlas,$mean_template,1,32,Regular,0.25] \
+    # -c [200x200x0,1e-8,10] -f 8x4x2 -s 3x2x1vox -t SyN[0.05,6,0.5] -m CC[$zbb_atlas,$mean_template,1,2] -c [200x200x200x10,1e-7,10] \
+    # -f 8x4x2x1 -s 3x2x1x0vox
 
     end_time=$(date +%s)
     cost_time=$[ $end_time-$start_time ]
@@ -42,15 +41,15 @@ do
     path_r=$file_dir/${file_name[$i]}/r/regist_red/red_demons
 
     cd /home/user/tgd/Dual-Color-Image-Processing/function
-    matlab -nodesktop -nosplash -r "file_path = '$path_g'; prefix_name = 'demons_green_3_'; red_flag = 0; mat2Nii(file_path,prefix_name,red_flag); quit"
-    matlab -nodesktop -nosplash -r "file_path = '$path_r'; prefix_name = 'demons_red_3_'; red_flag = 1; mat2Nii(file_path,prefix_name,red_flag); quit"
+    # matlab -nodesktop -nosplash -r "file_path = '$path_g'; prefix_name = 'demons_green_3_'; red_flag = 0; mat2Nii(file_path,prefix_name,red_flag); quit"
+    # matlab -nodesktop -nosplash -r "file_path = '$path_r'; prefix_name = 'demons_red_3_'; red_flag = 1; mat2Nii(file_path,prefix_name,red_flag); quit"
 
     path_ants_g=$regist_out_path/g
     path_ants_r=$regist_out_path/r
     mkdir $path_ants_g
     mkdir $path_ants_r
 
-    for ((j=${start_num[i]};j<${end_num[i]};j=j+1))
+    for ((j=${start_num[i]};j<=${end_num[i]};j=j+1))
     do
 
         start_time=$(date +%s)

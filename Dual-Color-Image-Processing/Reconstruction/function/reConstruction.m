@@ -23,8 +23,10 @@ function reConstruction(file_path_red,file_path_green,red_flag,heart_flag,red_PS
 
 %% Read the image and run reConstruct function to construct image.
     gpu_num = length(gpu_index);
-    all_tifs = sortName(dir(fullfile(file_path_red,'*.tif')));
-    all_tifs_g = sortName(dir(fullfile(file_path_green,'*.tif')));
+    r_files = dir(fullfile(file_path_red,'*.tif'));
+    all_tifs = sortName(r_files);
+    g_files = dir(fullfile(file_path_green,'*.tif'));
+    all_tifs_g = sortName(g_files);
     disp(all_tifs_g);
     spmd_num = ceil((end_frame-start_frame+1)/step_size/gpu_num);
 
@@ -72,7 +74,7 @@ function reConstruction(file_path_red,file_path_green,red_flag,heart_flag,red_PS
                 %% Synchronize the red and green.
                 [red_ObjRecon,green_ObjRecon] = rgSyn(red_ObjRecon,green_ObjRecon);
 
-                % Transform the green to register the red because of dissynchrony of dichroic mirrors.
+                %% Important: Transform the green to register the red because of dissynchrony of dichroic mirrors.
                 green_ObjRecon = imwarp(green_ObjRecon,tform,'linear','OutputView',imref3d(size(red_ObjRecon)));
                 
                 % Crop the black background and rotate the two ObjRecons.

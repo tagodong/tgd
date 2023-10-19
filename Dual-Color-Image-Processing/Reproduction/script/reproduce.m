@@ -68,18 +68,21 @@ for i = start_num:1:end_num
 
     %% Crop background.
     load(fullfile(file_dir,'Parameters',['Crop_parameter_',num2str(num),'.mat']));
-    red_ObjRecon = imrotate(red_ObjRecon,-(angel_azimuth/pi*180),'bicubic','crop');
-    green_ObjRecon = imrotate(green_ObjRecon,-(angel_azimuth/pi*180),'bicubic','crop');
-    red_ObjRecon = permute(red_ObjRecon,[1 3 2]);
-    red_ObjRecon = imrotate(red_ObjRecon,-(angel_elevation/pi*180),'bicubic','crop');
-    red_ObjRecon = permute(red_ObjRecon,[1 3 2]);
-    green_ObjRecon = permute(green_ObjRecon,[1 3 2]);
-    green_ObjRecon = imrotate(green_ObjRecon,-(angel_elevation/pi*180),'bicubic','crop');
-    green_ObjRecon = permute(green_ObjRecon,[1 3 2]);
+    if rotation_flag
+        red_ObjRecon = imrotate(red_ObjRecon,-(angel_azimuth/pi*180),'bicubic','crop');
+        green_ObjRecon = imrotate(green_ObjRecon,-(angel_azimuth/pi*180),'bicubic','crop');
+        red_ObjRecon = permute(red_ObjRecon,[1 3 2]);
+        red_ObjRecon = imrotate(red_ObjRecon,-(angel_elevation/pi*180),'bicubic','crop');
+        red_ObjRecon = permute(red_ObjRecon,[1 3 2]);
+        green_ObjRecon = permute(green_ObjRecon,[1 3 2]);
+        green_ObjRecon = imrotate(green_ObjRecon,-(angel_elevation/pi*180),'bicubic','crop');
+        green_ObjRecon = permute(green_ObjRecon,[1 3 2]);
+    
+        if flip_flag
+            red_ObjRecon = imrotate(red_ObjRecon,180,'bicubic', 'crop');
+            green_ObjRecon = imrotate(green_ObjRecon,180,'bicubic', 'crop');
+        end
 
-    if flip_flag
-        red_ObjRecon = imrotate(red_ObjRecon,180,'bicubic', 'crop');
-        green_ObjRecon = imrotate(green_ObjRecon,180,'bicubic', 'crop');
     end
 
     red_ObjRecon = red_ObjRecon((1+image_size(1)):image_size(2),(1+image_size(3)):image_size(4),(1+image_size(5)):image_size(6));
