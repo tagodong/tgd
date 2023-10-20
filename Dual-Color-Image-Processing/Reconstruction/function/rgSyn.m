@@ -9,4 +9,5 @@ function [red_ObjRecon,green_ObjRecon] = rgSyn(red_ObjRecon,green_ObjRecon)
 %% Rotate the image reference the atlas.
     red_ObjRecon = flip(red_ObjRecon,3);
     green_ObjRecon = flip(green_ObjRecon,3);
+    
 end
