@@ -7,7 +7,7 @@ cd ../;
 adpath;
 
 % Set path parameters.
-affine_template_path = fullfile(template_path,'affine_template');
+affine_template_path = fullfile(template_path,'Affine_template');
 Mask_path = fullfile(template_path,'zbb_SyN.nii.gz');
 mean_template_path = fullfile(template_path,'affine_mean_template.nii');
 eyes_crop_mean_template_path = fullfile(template_path,'eyes_crop_affine_mean_template.nii');

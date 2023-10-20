@@ -23,7 +23,7 @@ do
 	###### Generate mean_template.
 	# Find candidate templates.
 	cd /home/user/tgd/Dual-Color-Image-Processing/Registration/script/
-	matlab -nodesktop -nosplash -r "path_g = '${Path_g}'; path_r = '${Path_r}'; red_flag = $Red_flag; canTemplateFind_run; quit"
+	# matlab -nodesktop -nosplash -r "path_g = '${Path_g}'; path_r = '${Path_r}'; red_flag = $Red_flag; canTemplateFind_run; quit"
 	
 	# Run Registration for candidate templates.
 	cd /home/user/tgd/Dual-Color-Image-Processing/Registration/script/
