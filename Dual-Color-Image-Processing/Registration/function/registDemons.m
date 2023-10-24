@@ -50,6 +50,7 @@ function registDemons(file_path_red,file_path_green,red_flag,start_frame,step_si
         % Save the results.
         red_demons = gather(red_demons);
         green_demons = gather(green_demons);
+        D = gather(D);
 
         red_demons_path = fullfile(file_path_red,'Red_Demons');
         red_demons_MIPs_path = fullfile(file_path_red,'..','..','back_up','Red_Demons_MIP');

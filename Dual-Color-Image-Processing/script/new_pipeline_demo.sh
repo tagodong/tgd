@@ -1,29 +1,29 @@
 #!/bin/bash
 
 # Set the path.
-file_path="/home/d2/Recon/motor"
+file_path="/home/d1/kexin_raphe/norm"
 file_name=$(ls $file_path);
 file_name=(${file_name//,/ });
 fix_flag=1
-Red_flag=1
-heart_flag=0
+Red_flag=0
+heart_flag=1
 
 for ((i=0;i<${#file_name[*]};i=i+1))
 do
-	# Path_g=$file_path/${file_name[$i]}/g
-	# Path_r=$file_path/${file_name[$i]}/r
-	Path_g=$file_path/g
-	Path_r=$file_path/r
+	Path_g=$file_path/${file_name[$i]}/g
+	Path_r=$file_path/${file_name[$i]}/r
+	# Path_g=$file_path/g
+	# Path_r=$file_path/r
 
 	###### Run the registration pepline.
 	# Run reconstruction.
 	cd /home/user/tgd/Dual-Color-Image-Processing/Reconstruction/script/
-	# matlab -nodesktop -nosplash -r "path_g = '${Path_g}'; path_r = '${Path_r}'; red_flag = $Red_flag; heart_flag = $heart_flag; start_num = 1; end_num = 4000; step_size = 10; x_shift = 80; recon_demo; quit"
+	matlab -nodesktop -nosplash -r "path_g = '${Path_g}'; path_r = '${Path_r}'; red_flag = $Red_flag; heart_flag = $heart_flag; x_shift = 80; recon_demo; quit"
 
 	###### Generate mean_template.
 	# Find candidate templates.
 	cd /home/user/tgd/Dual-Color-Image-Processing/Registration/script/
-	# matlab -nodesktop -nosplash -r "path_g = '${Path_g}'; path_r = '${Path_r}'; red_flag = $Red_flag; canTemplateFind_run; quit"
+	matlab -nodesktop -nosplash -r "path_g = '${Path_g}'; path_r = '${Path_r}'; red_flag = $Red_flag; canTemplateFind_run; quit"
 	
 	# Run Registration for candidate templates.
 	cd /home/user/tgd/Dual-Color-Image-Processing/Registration/script/

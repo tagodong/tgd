@@ -10,7 +10,6 @@ function  imstack = tif2mat(file_path)
 %  update on 2023.01.06.
 
 Bkg = 0;
-disp('loading...');
 
 info=imfinfo(file_path);
 imstack=zeros(info(1).Height,info(1).Width,size(info,1));

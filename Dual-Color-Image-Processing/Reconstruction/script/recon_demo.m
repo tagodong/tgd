@@ -70,12 +70,15 @@ end
 if ~exist('start_num','var')
     start_num = 1;
 end
+
 if ~exist('end_num','var')
     end_num = length(dir(fullfile(file_Path_Red,'*.tif')));
 end
+
 if ~exist('step_size','var')
     step_size = 1;
 end
+
 if ~exist('x_shift','var')
     x_shift = 80;
 end

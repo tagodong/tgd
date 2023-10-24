@@ -45,6 +45,8 @@ function reConstruction(file_path_red,file_path_green,red_flag,heart_flag,red_PS
 
                 red_file_Name = fullfile(file_path_red,all_tifs{i});
                 green_file_Name = fullfile(file_path_green,all_tifs_g{i});
+
+                tic;
                 disp(['frame ',all_tifs{i},' start.']);
 
                 %% Reconstruct the red.
@@ -76,6 +78,7 @@ function reConstruction(file_path_red,file_path_green,red_flag,heart_flag,red_PS
 
                 %% Important: Transform the green to register the red because of dissynchrony of dichroic mirrors.
                 green_ObjRecon = imwarp(green_ObjRecon,tform,'linear','OutputView',imref3d(size(red_ObjRecon)));
+                toc;
                 
                 % Crop the black background and rotate the two ObjRecons.
                 disp('dual crop start.');

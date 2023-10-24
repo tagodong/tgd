@@ -15,7 +15,7 @@ function cropEyesTemplate(template_path,start_frame,step_size,end_frame,num_inde
 
 %% Run.
 
-    affine_template_path = fullfile(template_path,'affine_template');
+    affine_template_path = fullfile(template_path,'Affine_template');
     for i = start_frame:step_size:end_frame
 
         ii = num_index(i);

@@ -116,17 +116,10 @@ matlab -nodesktop -nosplash -r "input = '${mean_template}'; output = '${mean_tem
 ##### Run inverse nonrigid registration to make crop-eyes-MASK.
 start_time=$(date +%s)
 
-antsRegistration -d 3 --float 1 -o [${template_path}/Rigid_,${template_path}/zbb_Rigid.nii.gz] \
--t Rigid[0.1] -m MI[$mean_template,$zbbfish,1,32,Regular,0.25]  \
--c [200x200x100,1e-8,10] -f 8x4x2 -s 3x2x1
-
-antsRegistration -d 3 --float 1 -o [${template_path}/Affine_,${template_path}/zbb_Affine.nii.gz] \
--t Affine[0.1] -m MI[$mean_template,${template_path}/zbb_Rigid.nii.gz,1,32,Regular,0.25]  \
--c [200x200x100,1e-8,10] -f 8x4x2 -s 3x2x1
-
-antsRegistration -d 3 --float 1 -o [${template_path}/SyN_,${template_path}/zbb_SyN.nii.gz] \
--t SyN[0.05,6,0.4] -m CC[$mean_template,${template_path}/zbb_Affine.nii.gz,1,2]  \
--c [200x200x200x10,1e-7,10] -f 8x4x2x1 -s 3x2x1x0
+antsRegistration -d 3 --float 1 -o [${template_path}/zbb_Ants_,${template_path}/zbb_SyN.nii.gz] -n WelchWindowedSinc -u 0 -r [$mean_template,$zbbfish,1] \
+-t Rigid[0.1] -m MI[$mean_template,$zbbfish,1,32,Regular,0.25] -c [200x200x200x0,1e-8,10] -f 12x8x4x2 -s 4x3x2x1vox \
+-t Affine[0.1] -m MI[$mean_template,$zbbfish,1,32,Regular,0.25] -c [200x200x200x0,1e-8,10] -f 12x8x4x2 -s 4x3x2x1vox \
+-t SyN[0.05,6,0.5] -m CC[$mean_template,$zbbfish,1,2] -c [200x200x200x10,1e-7,10] -f 8x4x2x1 -s 3x2x1x0vox
 
 end_time=$(date +%s)
 cost_time=$[ $end_time-$start_time ]
@@ -159,7 +152,7 @@ back_up_affine_path=${template_path}/../back_up/Affine
 mkdir ${back_up_template_path}
 mkdir ${back_up_affine_path}
 cp ${mean_template} ${back_up_template_path}/mean_template.nii
-cp ${template_path}/zbb_Affine.nii.gz ${back_up_template_path}/zbb_Affine.nii.gz
+cp ${template_path}/zbb_SyN.nii.gz ${back_up_template_path}/zbb_SyN.nii.gz
 
 # Run affine registration.
 if [ $red_flag -eq 1 ]; then

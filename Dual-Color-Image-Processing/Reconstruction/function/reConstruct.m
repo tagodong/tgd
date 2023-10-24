@@ -62,6 +62,6 @@ function ObjRecon = reConstruct(imstack,PSF)
 
     end
     
-    ObjRecon=uint16(gather(gpuObjRecon));
+    ObjRecon=uint16(gpuObjRecon);
 
 end

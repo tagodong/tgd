@@ -17,6 +17,8 @@ function dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_pa
     
     %   update 2023.11.30.
         
+    atlas = gpuArray(atlas);
+
 %% If the fish has fluorescent in its heart, we need to crop it.
     if heart_flag
         red_ObjRecon = red_ObjRecon(:,:,1:225);
@@ -27,19 +29,23 @@ function dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_pa
     atlas = uint16(atlas);
     mean_thresh = 20;
 
+    rotation_flag = 0;
     green_BW_ObjRecon = green_ObjRecon > mean(mean(mean(green_ObjRecon,'omitnan')+mean_thresh,'omitnan'),'omitnan');
     if sum(green_BW_ObjRecon,'all') > 10^6
+        rotation_flag = 1;
         [cor_x,cor_y,cor_z] = ind2sub(size(green_BW_ObjRecon),find(green_BW_ObjRecon));
         cor_coef = pca([cor_x,cor_y,cor_z]);
-        [azimuth,elevation] = cart2sph(cor_coef(1,1),cor_coef(2,1),cor_coef(3,1));
-        red_ObjRecon = imrotate(red_ObjRecon,-(azimuth/pi*180),'bicubic','crop');
-        green_ObjRecon = imrotate(green_ObjRecon,-(azimuth/pi*180),'bicubic','crop');
+        [angle_azimuth,angel_elevation] = cart2sph(cor_coef(1,1),cor_coef(2,1),cor_coef(3,1));
+        angle_azimuth = gather(angle_azimuth);
+        angel_elevation = gather(angel_elevation);
+        red_ObjRecon = imrotate(red_ObjRecon,-(angle_azimuth/pi*180),'bicubic','crop');
+        green_ObjRecon = imrotate(green_ObjRecon,-(angle_azimuth/pi*180),'bicubic','crop');
 
         red_ObjRecon = permute(red_ObjRecon,[1 3 2]);
-        red_ObjRecon = imrotate(red_ObjRecon,-(elevation/pi*180),'bicubic','crop');
+        red_ObjRecon = imrotate(red_ObjRecon,-(angel_elevation/pi*180),'bicubic','crop');
         red_ObjRecon = permute(red_ObjRecon,[1 3 2]);
         green_ObjRecon = permute(green_ObjRecon,[1 3 2]);
-        green_ObjRecon = imrotate(green_ObjRecon,-(elevation/pi*180),'bicubic','crop');
+        green_ObjRecon = imrotate(green_ObjRecon,-(angel_elevation/pi*180),'bicubic','crop');
         green_ObjRecon = permute(green_ObjRecon,[1 3 2]);
 
 %% second, check if the fish is right vertival whose head in the top using template matching, if not flip it.
@@ -58,7 +64,7 @@ function dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_pa
 
         green_BW_ObjRecon = green_ObjRecon > mean(mean(mean(green_ObjRecon,'omitnan')+mean_thresh,'omitnan'),'omitnan');
         [cor_x,cor_y,cor_z] = ind2sub(size(green_BW_ObjRecon),find(green_BW_ObjRecon));
-        CentroID = mean([cor_x,cor_y,cor_z],1);
+        CentroID = gather(mean([cor_x,cor_y,cor_z],1));
         intial_size = size(green_BW_ObjRecon);
     else
         intial_size = size(green_ObjRecon);
@@ -128,7 +134,8 @@ function dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_pa
     %     end
     % end
     
-%% Write the results..
+%% Write the results.
+
     % For Red.
     red_crop_path = fullfile(file_path_red,'Red_Crop');
     red_crop_MIP_path = fullfile(file_path_red,'..','back_up','Red_Crop_MIP');
@@ -145,6 +152,11 @@ function dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_pa
 
     % For parameters.
     parameter_path = fullfile(file_path_red,'..','back_up','Parameters');
-    save(fullfile(parameter_path,['Crop_parameter_',num2str(num),'.mat']),'azimuth','elevation','flip_flag','image_size');
+    
+    if rotation_flag == 1
+        save(fullfile(parameter_path,['Crop_parameter_',num2str(num),'.mat']),'angle_azimuth','angel_elevation','flip_flag','image_size','rotation_flag');
+    else
+        save(fullfile(parameter_path,['Crop_parameter_',num2str(num),'.mat']),'image_size','rotation_flag');
+    end
     
 end

@@ -19,8 +19,17 @@ pre_name_red = 'ants_r_';
 batch_size = 1;
 write_flag = 0;
 rect_size = [8,8,6];
-start_frame = 324;
-end_frame = 1199;
+% start_frame = 324;
+% end_frame = 1199;
+if ~exist('start_frame',"var")
+    files = dir(fullfile(path_g,[pre_name_green,'*.nii']));
+    [~,name_num] = sortName(files);
+    start_frame = name_num(1);
+end
+
+if ~exist('end_frame',"var")
+    end_frame = name_num(end);
+end
 
 % Generate the rect segmentation mask.
 [seg_regions, water_corMap, info_data] = rectSegGenerate(path_g, pre_name_green, start_frame, end_frame, rect_size);

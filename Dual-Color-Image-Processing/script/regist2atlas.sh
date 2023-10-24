@@ -1,16 +1,16 @@
 #!/bin/bash
 
 ## Transform meantemplate to atlas.
-file_dir='/home/d1/blueLaser'
-red_flag=1
-start_num=(1199 324 324 324)
-end_num=(1199 1199 1199 1199)
+file_dir='/home/d1/fix'
+red_flag=0
+start_num=(324 324 429 599)
+end_num=(1199 1199 1299 1469)
 
 zbb_atlas="/home/user/tgd/Dual-Color-Image-Processing/data/Atlas/Ref-zbb2.nii"
 
 file_name=$(ls $file_dir);
 file_name=(${file_name//,/ });
-for ((i=2;i<${#file_name[*]};i=i+1))
+for ((i=3;i<${#file_name[*]};i=i+1))
 do
     regist_out_path=$file_dir/${file_name[$i]}/regist2atlas
     mkdir $regist_out_path
@@ -28,9 +28,9 @@ do
 
     antsRegistration -d 3 --float 1 -o [${regist_out_path}/mean2atlas_,${regist_out_path}/mean2atlas_warped.nii.gz] -n WelchWindowedSinc \
     -u 0 -r [$zbb_atlas,$mean_template,1] -t Rigid[0.1] -m MI[$zbb_atlas,$mean_template,1,32,Regular,0.25] \
-    -c [200x200x0,1e-8,10] -f 8x4x2 -s 3x2x1vox -t Affine[0.1] -m MI[$zbb_atlas,$mean_template,1,32,Regular,0.25] \
-    -c [200x200x0,1e-8,10] -f 8x4x2 -s 3x2x1vox -t SyN[0.05,6,0.5] -m CC[$zbb_atlas,$mean_template,1,2] -c [200x200x200x10,1e-7,10] \
-    -f 8x4x2x1 -s 3x2x1x0vox
+    -c [200x200x200x0,1e-8,10] -f 12x8x4x2 -s 4x3x2x1vox -t Affine[0.1] -m MI[$zbb_atlas,$mean_template,1,32,Regular,0.25] \
+    -c [200x200x200x0,1e-8,10] -f 12x8x4x2 -s 4x3x2x1vox -t SyN[0.05,6,0.5] -m CC[$zbb_atlas,$mean_template,1,2] -c [200x200x200x200x10,1e-7,10] \
+    -f 12x8x4x2x1 -s 4x3x2x1x0vox
 
     end_time=$(date +%s)
     cost_time=$[ $end_time-$start_time ]

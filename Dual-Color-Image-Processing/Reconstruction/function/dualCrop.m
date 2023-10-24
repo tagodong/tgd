@@ -17,6 +17,8 @@ function dualCrop(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path
 
 %   update 2023.10.17.
     
+atlas = gpuArray(atlas);
+
 %% If have heart expression, cut the heart.
     if heart_flag
         red_ObjRecon = red_ObjRecon(:,:,1:225);
@@ -25,8 +27,6 @@ function dualCrop(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path
 
 %% First, rotate the fish to vertical in XY plane
     atlas = uint16(atlas);
-    % red_ObjRecon = gpuArray(red_ObjRecon);
-    % green_ObjRecon = gpuArray(green_ObjRecon);
     mean_thresh = 20;
 
     rotation_flag = 0;
@@ -36,6 +36,8 @@ function dualCrop(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path
         [cor_x,cor_y,cor_z] = ind2sub(size(red_BW_ObjRecon),find(red_BW_ObjRecon));
         cor_coef = pca([cor_x,cor_y,cor_z]);
         [angle_azimuth,angel_elevation] = cart2sph(cor_coef(1,1),cor_coef(2,1),cor_coef(3,1));
+        angle_azimuth = gather(angle_azimuth);
+        angel_elevation = gather(angel_elevation);
         red_ObjRecon = imrotate(red_ObjRecon,-(angle_azimuth/pi*180),'bicubic','crop');
         green_ObjRecon = imrotate(green_ObjRecon,-(angle_azimuth/pi*180),'bicubic','crop');
 
@@ -63,7 +65,7 @@ function dualCrop(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path
 
         red_BW_ObjRecon = red_ObjRecon > mean(mean(mean(red_ObjRecon,'omitnan')+mean_thresh,'omitnan'),'omitnan');
         [cor_x,cor_y,cor_z] = ind2sub(size(red_BW_ObjRecon),find(red_BW_ObjRecon));
-        CentroID = mean([cor_x,cor_y,cor_z],1);
+        CentroID = gather(mean([cor_x,cor_y,cor_z],1));
         intial_size = size(red_BW_ObjRecon);
     else
         intial_size = size(red_ObjRecon);
@@ -134,7 +136,8 @@ function dualCrop(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path
     %     end
     % end
 
-%% Write the results..
+%% Write the results.
+
     % For Red.
     red_crop_path = fullfile(file_path_red,'Red_Crop');
     red_crop_MIP_path = fullfile(file_path_red,'..','back_up','Red_Crop_MIP');
