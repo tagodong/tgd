@@ -40,10 +40,10 @@ mkdir(green_affine_path);
 mkdir(red_affine_path);
 
 % For demons registration.
-red_demons_path = fullfile(file_dir,'Red_Demons');
-green_demons_path = fullfile(file_dir,'Green_Demons');
-mkdir(red_demons_path);
-mkdir(green_demons_path);
+red_mask_path = fullfile(file_dir,'Red_Mask');
+green_mask_path = fullfile(file_dir,'Green_Mask');
+mkdir(red_mask_path);
+mkdir(green_mask_path);
 
 for i = start_num:1:end_num
 
@@ -120,18 +120,26 @@ for i = start_num:1:end_num
     green_mask_image=green_image.*Mask;
     red_mask_image=red_image.*Mask;
 
-    %% Demons registration.
-    load(fullfile(file_dir,'Parameters',['D',num2str(num),'mat']),'D');
-    green_demons = imwarp(green_mask_image,D,'linear');
-    red_demons = imwarp(red_mask_image,D,'linear');
+    red_mask_name = ['Red_Mask_',num2str(i),'.mat'];
+    ObjRecon = red_mask_image;
+    save(fullfile(red_mask_path,red_mask_name),'ObjRecon');
 
-    red_demons_name = ['Red_Demons_',num2str(i),'.mat'];
-    ObjRecon = red_demons;
-    save(fullfile(red_demons_path,red_demons_name),'ObjRecon');
+    green_mask_name = ['Green_Mask_',num2str(i),'.mat'];
+    ObjRecon = green_mask_image;
+    save(fullfile(green_mask_path,green_mask_name),'ObjRecon');
 
-    green_demons_name = ['Green_Demons_',num2str(i),'.mat'];
-    ObjRecon = green_demons;
-    save(fullfile(green_demons_path,green_demons_name),'ObjRecon');
+    % %% Demons registration.
+    % load(fullfile(file_dir,'Parameters',['D',num2str(num),'mat']),'D');
+    % green_demons = imwarp(green_mask_image,D,'linear');
+    % red_demons = imwarp(red_mask_image,D,'linear');
+
+    % red_demons_name = ['Red_Demons_',num2str(i),'.mat'];
+    % ObjRecon = red_demons;
+    % save(fullfile(red_demons_path,red_demons_name),'ObjRecon');
+
+    % green_demons_name = ['Green_Demons_',num2str(i),'.mat'];
+    % ObjRecon = green_demons;
+    % save(fullfile(green_demons_path,green_demons_name),'ObjRecon');
     
     toc;
     disp(['frame ',num2str(num),' done.']);

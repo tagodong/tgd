@@ -38,7 +38,7 @@ end_num = length(dir(fullfile(file_path_green,'Green_Affine_*.nii')));
 thread_num = 28;
 
 Mask = niftiread(Mask_path);
-Mask = uint16(Mask>0);
+Mask = uint16(Mask>=1);
 step_size = 1; 
 
 % crop the eyes.

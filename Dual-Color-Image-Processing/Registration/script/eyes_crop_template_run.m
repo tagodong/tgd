@@ -29,7 +29,7 @@ end_num = length(dir(fullfile(affine_template_path,'Can_template_affine*.nii')))
 thread_num = 28;
 
 Mask = niftiread(Mask_path);
-Mask = uint16(Mask>0);
+Mask = uint16(Mask>=1);
 step_size = 1; 
 
 % crop the eyes.

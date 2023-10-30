@@ -3,13 +3,12 @@
 %% Segment brain regions using Correlation Map method and extract the calcium trace.
 
 % set path.
-path_g = '/home/d1/fix/20230928_1652_g8s-lssm-tph2-chri_9dpf/g';
-path_r = '/home/d1/fix/20230928_1652_g8s-lssm-tph2-chri_9dpf/r';
+file_dir = '/home/d1/kexin_raphe/norm/230618-01/back_up';
 
-start_frame = 599;
-end_frame = 1469;
+start_frame = 301;
+end_frame = 2537;
 
-CalTrace_path = fullfile(path_g,'..','back_up','CalTrace');
+CalTrace_path = fullfile(file_dir,'CalTrace');
 if ~exist(CalTrace_path,'dir')
     mkdir(CalTrace_path);
 end
@@ -19,14 +18,14 @@ end
 
 for j = 1:1
 
-    file_path_red = fullfile(path_r,'Red_Registration/Red_Demons/');
+    file_path_red = fullfile(file_dir,'Red_Demons/');
 
-    file_path_green = fullfile(path_g,'Green_Registration/Green_Demons/');
+    file_path_green = fullfile(file_dir,'Green_Demons/');
 
     % set the prefix name and value name of images.
-    pre_name_green = 'Red_Demons_';
+    pre_name_green = 'Green_Demons_';
     value_name_green = 'ObjRecon';
-    pre_name_red = 'Green_Demons_';
+    pre_name_red = 'Red_Demons_';
     value_name_red = 'ObjRecon';
 
     % set the distance between two adjacent brain voxels for calculating correlation.

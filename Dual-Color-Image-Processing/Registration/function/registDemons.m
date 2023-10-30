@@ -50,21 +50,18 @@ function registDemons(file_path_red,file_path_green,red_flag,start_frame,step_si
         % Save the results.
         red_demons = gather(red_demons);
         green_demons = gather(green_demons);
-        D = gather(D);
 
-        red_demons_path = fullfile(file_path_red,'Red_Demons');
+        red_demons_path = fullfile(file_path_red,'..','..','back_up','Red_Demons');
         red_demons_MIPs_path = fullfile(file_path_red,'..','..','back_up','Red_Demons_MIP');
         red_demons_name = ['Red_Demons_',num2str(i),'.mat'];
         red_demons_MIPs_name = ['Red_Demons_MIP_',num2str(i),'.tif'];
         imageWrite(red_demons_path,red_demons_MIPs_path,red_demons_name,red_demons_MIPs_name,red_demons,1);
 
-        green_demons_path = fullfile(file_path_green,'Green_Demons');
+        green_demons_path = fullfile(file_path_green,'..','..','back_up','Green_Demons');
         green_demons_MIPs_path = fullfile(file_path_green,'..','..','back_up','Green_Demons_MIP');
         green_demons_name = ['Green_Demons_',num2str(i),'.mat'];
         green_demons_MIPs_name = ['Green_Demons_MIP_',num2str(i),'.tif'];
         imageWrite(green_demons_path,green_demons_MIPs_path,green_demons_name,green_demons_MIPs_name,green_demons,1);
-
-        save(fullfile(file_path_green,'..','..','back_up','Parameters',['D',num2str(i),'mat']),'D');
 
         disp(['Green_Demons','_',num2str(i),'.tif done!']);
         toc;

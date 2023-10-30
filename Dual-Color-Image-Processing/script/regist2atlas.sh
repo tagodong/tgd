@@ -1,24 +1,26 @@
 #!/bin/bash
 
 ## Transform meantemplate to atlas.
-file_dir='/home/d1/fix'
+file_dir='/home/d1/kexin_raphe/norm'
 red_flag=0
-start_num=(324 324 429 599)
-end_num=(1199 1199 1299 1469)
+start_num=(301 301)
+end_num=(2315 2537)
 
 zbb_atlas="/home/user/tgd/Dual-Color-Image-Processing/data/Atlas/Ref-zbb2.nii"
 
 file_name=$(ls $file_dir);
 file_name=(${file_name//,/ });
-for ((i=3;i<${#file_name[*]};i=i+1))
+# ${#file_name[*]}
+for ((i=0;i<2;i=i+1))
 do
     regist_out_path=$file_dir/${file_name[$i]}/regist2atlas
     mkdir $regist_out_path
-    if [ $red_flag -eq 1 ];then
-        mean_template=$file_dir/${file_name[$i]}/r/template/mean_template.nii
-    else
-        mean_template=$file_dir/${file_name[$i]}/g/template/mean_template.nii
-    fi
+    # if [ $red_flag -eq 1 ];then
+    #     mean_template=$file_dir/${file_name[$i]}/r/template/mean_template.nii
+    # else
+    #     mean_template=$file_dir/${file_name[$i]}/g/template/mean_template.nii
+    # fi
+    mean_template=$file_dir/${file_name[$i]}/template/mean_template.nii
 
     cd /home/user/tgd/Dual-Color-Image-Processing/Registration/script
     matlab -nodesktop -nosplash -r "input = '${mean_template}'; output = '${mean_template}'; myunshort; quit"
@@ -37,12 +39,16 @@ do
     echo "Transform was estimated and the time is $(($cost_time/60))min $(($cost_time%60))s"
 
     ##### Apply the transformation to all frames.
-    path_g=$file_dir/${file_name[$i]}/g/regist_green/green_demons
-    path_r=$file_dir/${file_name[$i]}/r/regist_red/red_demons
+    # path_g=$file_dir/${file_name[$i]}/g/regist_green/green_demons
+    # path_r=$file_dir/${file_name[$i]}/r/regist_red/red_demons
+    path_g=$file_dir/${file_name[$i]}/back_up/Green_Demons
+    path_r=$file_dir/${file_name[$i]}/back_up/Red_Demons
 
     cd /home/user/tgd/Dual-Color-Image-Processing/function
-    matlab -nodesktop -nosplash -r "file_path = '$path_g'; prefix_name = 'demons_green_3_'; red_flag = 0; mat2Nii(file_path,prefix_name,red_flag); quit"
-    matlab -nodesktop -nosplash -r "file_path = '$path_r'; prefix_name = 'demons_red_3_'; red_flag = 1; mat2Nii(file_path,prefix_name,red_flag); quit"
+    # matlab -nodesktop -nosplash -r "file_path = '$path_g'; prefix_name = 'demons_green_3_'; red_flag = 0; mat2Nii(file_path,prefix_name,red_flag); quit"
+    # matlab -nodesktop -nosplash -r "file_path = '$path_r'; prefix_name = 'demons_red_3_'; red_flag = 1; mat2Nii(file_path,prefix_name,red_flag); quit"
+    matlab -nodesktop -nosplash -r "file_path = '$path_g'; prefix_name = 'Green_Demons_'; mat2nii(file_path,prefix_name); quit"
+    matlab -nodesktop -nosplash -r "file_path = '$path_r'; prefix_name = 'Red_Demons_'; mat2nii(file_path,prefix_name); quit"
 
     path_ants_g=$regist_out_path/g
     path_ants_r=$regist_out_path/r
@@ -54,9 +60,9 @@ do
 
         start_time=$(date +%s)
 
-        antsApplyTransforms -d 3 -v 0 --float 1 -n WelchWindowedSinc -i $path_g/nii/demons_green_3_$j.nii -r $zbb_atlas -o $path_ants_g/ants_g_$j.nii -t $regist_out_path/mean2atlas_1Warp.nii.gz -t $regist_out_path/mean2atlas_0GenericAffine.mat
+        antsApplyTransforms -d 3 -v 0 --float 1 -n WelchWindowedSinc -i $path_g/nii/Green_Demons_$j.nii -r $zbb_atlas -o $path_ants_g/ants_g_$j.nii -t $regist_out_path/mean2atlas_1Warp.nii.gz -t $regist_out_path/mean2atlas_0GenericAffine.mat
 
-        antsApplyTransforms -d 3 -v 0 --float 1 -n WelchWindowedSinc -i $path_r/nii/demons_red_3_$j.nii -r $zbb_atlas -o $path_ants_r/ants_r_$j.nii -t $regist_out_path/mean2atlas_1Warp.nii.gz -t $regist_out_path/mean2atlas_0GenericAffine.mat
+        antsApplyTransforms -d 3 -v 0 --float 1 -n WelchWindowedSinc -i $path_r/nii/Red_Demons_$j.nii -r $zbb_atlas -o $path_ants_r/ants_r_$j.nii -t $regist_out_path/mean2atlas_1Warp.nii.gz -t $regist_out_path/mean2atlas_0GenericAffine.mat
 
         end_time=$(date +%s)
         cost_time=$[ $end_time-$start_time ]

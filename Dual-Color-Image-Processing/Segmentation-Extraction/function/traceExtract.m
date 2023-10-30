@@ -83,10 +83,6 @@ function [CalTrace_save,Coherence]=traceExtract(file_path,pre_name,value_name,se
 
     clear eval(value_name);
     
-    if write_flag
-        save(fullfile(file_path,'Coherence.mat'),'Coherence');
-    end
-    
     %% Show histogram
     % figure('Name','histogram of Coherence');
     % histogram(Coherence,'Normalization','pdf');

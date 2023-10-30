@@ -55,7 +55,6 @@ zbbfish="/home/user/tgd/Dual-Color-Image-Processing/data/Atlas/Ref-zbb2.nii"
 #     done
 # fi
 
-
 ###### Regist best candidate template.
 # Initialize affine matrix.
 cmtk make_initial_affine --principal-axes $zbbfish ${template_path}/Best_Can_template.nii ${template_path}/Best_initial.xform
