@@ -36,7 +36,7 @@ save(fullfile(CalTrace_path,'seg_regions.mat'),'seg_regions');
 save(fullfile(CalTrace_path,'water_corMap.mat'),'water_corMap');
 % extract the green trace.
 tic;
-[G_trace,Coherence_G] = traceExtract_rect(path_g,pre_name_green,seg_regions,water_corMap,info_data,start_frame,batch_size,end_frame,name_num);
+[G_trace,Coherence_G] = traceExtract_rect(path_g,pre_name_green,seg_regions,water_corMap,info_data,start_frame,end_frame,name_num);
 save(fullfile(CalTrace_path,'G_trace.mat'),'G_trace');
 save(fullfile(CalTrace_path,'G_Coherence.mat'),'Coherence_G');
 disp('Green trace done.');

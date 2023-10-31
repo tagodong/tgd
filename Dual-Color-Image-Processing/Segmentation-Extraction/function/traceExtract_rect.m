@@ -1,4 +1,4 @@
-function [CalTrace_save,Coherence]=traceExtract_rect(file_path,pre_name,seg_regions,water_corMap,info_data,start_frame,batch_size,end_frame)
+function [CalTrace_save,Coherence]=traceExtract_rect(file_path,pre_name,seg_regions,water_corMap,info_data,start_frame,end_frame)
     %% function summary: extract calcium traces and calculate coherence.
     
     %  input:
