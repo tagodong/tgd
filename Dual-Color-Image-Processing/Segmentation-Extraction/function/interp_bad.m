@@ -35,9 +35,9 @@ function interp_bad(file_path,pre_name,index_pre,index_post,red_flag)
         MIP=[max(ObjRecon,[],3) squeeze(max(ObjRecon,[],2));squeeze(max(ObjRecon,[],1))' zeros(size(ObjRecon,3),size(ObjRecon,3))];
         MIP=uint16(MIP);
         if red_flag == 1
-            imwrite(MIP,fullfile(file_path,'..','..','..','back_up','Red_Demons_MIP',['Red_Demons_MIP_',num2str(i),'.tif']));
+            imwrite(MIP,fullfile(file_path,'..','Red_Demons_MIP',['Red_Demons_MIP_',num2str(i),'.tif']));
         else
-            imwrite(MIP,fullfile(file_path,'..','..','..','back_up','Green_Demons_MIP',['Green_Demons_MIP_',num2str(i),'.tif']));
+            imwrite(MIP,fullfile(file_path,'..','Green_Demons_MIP',['Green_Demons_MIP_',num2str(i),'.tif']));
         end
         
     end

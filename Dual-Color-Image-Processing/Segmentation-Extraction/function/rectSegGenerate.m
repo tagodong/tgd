@@ -1,9 +1,9 @@
-function [seg_regions, water_corMap, info_data] = rectSegGenerate(file_path, pre_name, start_frame, end_frame, rect_size)
+function [seg_regions, water_corMap, info_data] = rectSegGenerate(file_path,pre_name,start_frame,end_frame,rect_size,name_num)
     %% Generate rect segmentation mask to extract the trace.
 
      %% Initialize parameters.
      input_extend = '.nii';
-     filename_in = [pre_name,num2str(start_frame),input_extend];
+     filename_in = [pre_name,num2str(name_num(start_frame)),input_extend];
      ObjRecon = niftiread(fullfile(file_path,filename_in));
      dx = size(ObjRecon,1);
      dy = size(ObjRecon,2);
@@ -12,20 +12,22 @@ function [seg_regions, water_corMap, info_data] = rectSegGenerate(file_path, pre
      Y_mean = zeros(dx,dy,dz,'single');
      
      %% First, calculate Y_mean, F_max, F_min
-     for i=start_frame+1:end_frame
-         filename_in = [pre_name,num2str(i),input_extend];
-         ObjRecon = niftiread(fullfile(file_path,filename_in));
-         Y_mean = Y_mean + single(ObjRecon);
+     for j=start_frame+1:end_frame
+        i = name_num(j);
+        filename_in = [pre_name,num2str(i),input_extend];
+        ObjRecon = niftiread(fullfile(file_path,filename_in));
+        Y_mean = Y_mean + single(ObjRecon);
      end
      Y_mean = Y_mean/(end_frame-start_frame+1);
      disp('calculate Y_mean done.');
      
      %% Second, calculate SD.
-     for i=start_frame:end_frame
-         filename_in = [pre_name,num2str(i),input_extend];
-         ObjRecon = niftiread(fullfile(file_path,filename_in));
-         Y_shift = bsxfun(@minus,single(ObjRecon),Y_mean);
-         SD = SD + Y_shift.*Y_shift;
+     for j=start_frame:end_frame
+        i = name_num(j);
+        filename_in = [pre_name,num2str(i),input_extend];
+        ObjRecon = niftiread(fullfile(file_path,filename_in));
+        Y_shift = bsxfun(@minus,single(ObjRecon),Y_mean);
+        SD = SD + Y_shift.*Y_shift;
      end
      SD = sqrt(SD/(end_frame-start_frame+1));
      disp('calculate SD done.');

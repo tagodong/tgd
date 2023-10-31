@@ -1,4 +1,4 @@
-function [seg_regions,water_corMap_filter] = coherenceFilter(file_path,Coherence,water_corMap,min_size,thresh_Coherence,write_flag)
+function [seg_regions,water_corMap_filter] = coherenceFilter(Coherence,water_corMap,min_size,thresh_Coherence)
 %% function summary: Filter regions according to Coherence threshold.
 
 %  input:
@@ -27,17 +27,5 @@ function [seg_regions,water_corMap_filter] = coherenceFilter(file_path,Coherence
         seg_regions(:,k) = sparse(reshape(temp,[d1*d2*d3,1]));
     end
     clear Mask_Coherence;
-    
-    %% Display
-    index_slice = 1:d3;
-    num_slices = length(index_slice);
-    temp = water_corMap_filter;
-
-    if write_flag
-        imwrite(gather(squeeze(temp(:,:,1))),fullfile(file_path,'water_corMap_filter.tif'));
-        for l=2:num_slices
-            imwrite(gather(squeeze(temp(:,:,l))),fullfile(file_path,'water_corMap_filter.tif'),'WriteMode','append');
-        end
-    end
 
 end

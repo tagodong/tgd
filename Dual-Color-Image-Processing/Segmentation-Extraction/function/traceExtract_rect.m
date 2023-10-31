@@ -1,4 +1,4 @@
-function [CalTrace_save,Coherence]=traceExtract_rect(file_path,pre_name,seg_regions,water_corMap,info_data,start_frame,batch_size,end_frame,write_flag)
+function [CalTrace_save,Coherence]=traceExtract_rect(file_path,pre_name,seg_regions,water_corMap,info_data,start_frame,batch_size,end_frame)
     %% function summary: extract calcium traces and calculate coherence.
     
     %  input:
@@ -23,16 +23,15 @@ function [CalTrace_save,Coherence]=traceExtract_rect(file_path,pre_name,seg_regi
     
         %% Calculate the mean of brain regions as the calcium trace.
         CalTrace = zeros(num_regions,T,"single");
-        for ff=start_frame:batch_size:end_frame
+        for f=start_frame:end_frame
+            ff = name_num(f);
             tic;
-            Y_r = zeros(num_voxels,min([end_frame,ff+batch_size-1])-ff+1,"single"); % load a batch
-            for i=ff:min([end_frame,ff+batch_size-1])
-                ObjRecon = niftiread(fullfile(file_path,[pre_name,num2str(i),input_extend]));
-                Y_r(:,i-ff+1) = reshape(single(ObjRecon),[num_voxels,1]);
-            end
+            ObjRecon = niftiread(fullfile(file_path,[pre_name,num2str(ff),input_extend]));
+            Y_r = reshape(single(ObjRecon),[num_voxels,1]);
+
             for k=1:num_regions
                 temp = Y_r(seg_regions(:,k)>0,:);
-                CalTrace(k,(ff:min([end_frame,ff+batch_size-1]))-start_frame+1) = mean(temp,1);
+                CalTrace(k,f-start_frame+1) = mean(temp,1);
             end
             toc;
             disp(ff);
@@ -44,7 +43,7 @@ function [CalTrace_save,Coherence]=traceExtract_rect(file_path,pre_name,seg_regi
         clear Y_r;
         
         %% calculate the coherence map
-        ObjRecon = niftiread(fullfile(file_path,[pre_name,num2str(start_frame),input_extend]));
+        ObjRecon = niftiread(fullfile(file_path,[pre_name,num2str(name_num(start_frame)),input_extend]));
     
         %% normalize CalTrace
         CalTrace = CalTrace - mean(CalTrace,2);
@@ -55,10 +54,11 @@ function [CalTrace_save,Coherence]=traceExtract_rect(file_path,pre_name,seg_regi
         %% calculate coherence.
         Coherence = zeros(size(ObjRecon),"single");
         % [d1,d2,d3] = size(eval(value_name));
-        for t=1:T
-            ObjRecon = niftiread(fullfile(file_path,[pre_name,num2str(t+start_frame-1),input_extend]));
+        for tt=start_frame:end_frame
+            t = name_num(tt);
+            ObjRecon = niftiread(fullfile(file_path,[pre_name,num2str(t),input_extend]));
             temp = zeros(size(Coherence),'single');
-            temp(water_corMap~=0) = CalTrace(water_corMap(water_corMap~=0),t);
+            temp(water_corMap~=0) = CalTrace(water_corMap(water_corMap~=0),tt-start_frame+1);
             
             % temp = zeros(size(Coherence));
             % disp(isgpuarray(temp));
@@ -82,10 +82,6 @@ function [CalTrace_save,Coherence]=traceExtract_rect(file_path,pre_name,seg_regi
         Coherence = Coherence/T;
     
         clear ObjRecon;
-        
-        if write_flag
-            save(fullfile(file_path,'Coherence.mat'),'Coherence');
-        end
         
         %% Show histogram
         % figure('Name','histogram of Coherence');

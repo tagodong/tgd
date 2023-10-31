@@ -1,4 +1,4 @@
-function [CalTrace,Coherence,seg_regions,water_corMap_filter,info_data] = corMap(file_path,pre_name,value_name,start_frame,end_frame,ad_dist,thresh,min_size)
+function [CalTrace,Coherence,seg_regions,water_corMap_filter,info_data] = corMap(file_path,pre_name,value_name,start_frame,end_frame,name_num,ad_dist,thresh,min_size)
     %% function summary: Segment brain regions using Correlation Map.
     
     %  input:
@@ -18,7 +18,7 @@ function [CalTrace,Coherence,seg_regions,water_corMap_filter,info_data] = corMap
     %% Initialize parameters.
     coord_shift = round(sqrt(ad_dist^2/3));
     input_extend = '.mat';
-    filename_in = [pre_name,num2str(start_frame),input_extend];
+    filename_in = [pre_name,num2str(name_num(start_frame)),input_extend];
     load(fullfile(file_path,filename_in),value_name);
     dx = size(eval(value_name),1);
     dy = size(eval(value_name),2);
@@ -30,7 +30,8 @@ function [CalTrace,Coherence,seg_regions,water_corMap_filter,info_data] = corMap
     F_min = single(eval(value_name));
     
     %% First, calculate Y_mean, F_max, F_min
-    for i=start_frame+1:end_frame
+    for j=start_frame+1:end_frame
+        i = name_num(j);
         filename_in = [pre_name,num2str(i),input_extend];
         load(fullfile(file_path,filename_in),value_name);
         Y_mean = Y_mean + single(eval(value_name));
@@ -47,7 +48,8 @@ function [CalTrace,Coherence,seg_regions,water_corMap_filter,info_data] = corMap
     disp('calculate Y_mean, F_max, F_min done.');
     
     %% Second, calculate SD.
-    for i=start_frame:end_frame
+    for j=start_frame:end_frame
+        i = name_num(j);
         filename_in = [pre_name,num2str(i),input_extend];
         load(fullfile(file_path,filename_in),value_name);
         Y_shift = bsxfun(@minus,single(eval(value_name)),Y_mean);
@@ -63,7 +65,8 @@ function [CalTrace,Coherence,seg_regions,water_corMap_filter,info_data] = corMap
     info_data.SD = SD;
     
     %% Third, calculate Corr,
-    for n=start_frame:end_frame
+    for j=start_frame:end_frame
+        n = name_num(j);
         filename_in = [pre_name,num2str(n),input_extend];
         load(fullfile(file_path,filename_in),value_name);
         Y_shift = bsxfun(@minus,single(eval(value_name)),Y_mean);
@@ -115,12 +118,9 @@ function [CalTrace,Coherence,seg_regions,water_corMap_filter,info_data] = corMap
     disp('Segmentation done.');
     
     %% extract Calcium traces
-    % if save temp results.
-    write_flag = 0;
-    
     % set the batchsize.
     batch_size = 1;
-    [~,Coherence] = traceExtract(file_path,pre_name,value_name,seg_regions,water_corMap,info_data,start_frame,batch_size,end_frame,write_flag);
+    [~,Coherence] = traceExtract(file_path,pre_name,value_name,seg_regions,water_corMap,info_data,start_frame,batch_size,end_frame,name_num);
     disp('First extraction done.');
     
     %% Filter regions according to Coherence thresh.
@@ -128,17 +128,14 @@ function [CalTrace,Coherence,seg_regions,water_corMap_filter,info_data] = corMap
     thresh_Coherence = 0.5;
     
     % if save the water_corMap_filter.
-    write_flag = 0;
-    [seg_regions,water_corMap_filter] = coherenceFilter(file_path,Coherence,water_corMap,min_size,thresh_Coherence,write_flag);
+
+    [seg_regions,water_corMap_filter] = coherenceFilter(Coherence,water_corMap,min_size,thresh_Coherence);
     disp('water_corMap_filter done.');
     
     %% extract Calcium traces again.
-    % if save temp results.
-    write_flag = 0;
-    
     % set the batchsize.
     batch_size = 1;
-    [CalTrace,Coherence] = traceExtract(file_path,pre_name,value_name,seg_regions,water_corMap_filter,info_data,start_frame,batch_size,end_frame,write_flag);
+    [CalTrace,Coherence] = traceExtract(file_path,pre_name,value_name,seg_regions,water_corMap_filter,info_data,start_frame,batch_size,end_frame,name_num);
     disp('Second extraction done.');
     
 end
