@@ -119,8 +119,7 @@ function [CalTrace,Coherence,seg_regions,water_corMap_filter,info_data] = corMap
     
     %% extract Calcium traces
     % set the batchsize.
-    batch_size = 1;
-    [~,Coherence] = traceExtract(file_path,pre_name,value_name,seg_regions,water_corMap,info_data,start_frame,batch_size,end_frame,name_num);
+    [~,Coherence] = traceExtract(file_path,pre_name,value_name,seg_regions,water_corMap,info_data,start_frame,end_frame,name_num);
     disp('First extraction done.');
     
     %% Filter regions according to Coherence thresh.
@@ -134,8 +133,7 @@ function [CalTrace,Coherence,seg_regions,water_corMap_filter,info_data] = corMap
     
     %% extract Calcium traces again.
     % set the batchsize.
-    batch_size = 1;
-    [CalTrace,Coherence] = traceExtract(file_path,pre_name,value_name,seg_regions,water_corMap_filter,info_data,start_frame,batch_size,end_frame,name_num);
+    [CalTrace,Coherence] = traceExtract(file_path,pre_name,value_name,seg_regions,water_corMap_filter,info_data,start_frame,end_frame,name_num);
     disp('Second extraction done.');
     
 end

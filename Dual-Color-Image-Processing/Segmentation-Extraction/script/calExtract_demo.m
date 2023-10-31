@@ -67,7 +67,7 @@ for j = 1:1
     % extract the red trace.
     batch_size = 1;
     write_flag = 1;
-    R_trace = traceExtract(file_path_red,pre_name_red,value_name_red,seg_regions,water_corMap_filter,info_data,start_frame,batch_size,end_frame,name_num);
+    R_trace = traceExtract(file_path_red,pre_name_red,value_name_red,seg_regions,water_corMap_filter,info_data,start_frame,end_frame,name_num);
     save(fullfile(CalTrace_path,'R_trace.mat'),'R_trace');
     disp('Red trace done.');
     toc;

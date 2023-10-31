@@ -57,7 +57,7 @@ function [CalTrace_save,Coherence]=traceExtract(file_path,pre_name,value_name,se
         t = name_num(tt);
         load(fullfile(file_path,[pre_name,num2str(t),input_extend]),value_name);
         temp = zeros(size(Coherence),'single');
-        temp(water_corMap~=0) = CalTrace(water_corMap(water_corMap~=0),t-start_frame+1);
+        temp(water_corMap~=0) = CalTrace(water_corMap(water_corMap~=0),tt-start_frame+1);
         
         % temp = zeros(size(Coherence));
         % disp(isgpuarray(temp));
