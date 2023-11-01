@@ -1,10 +1,12 @@
 %% Extract calcium trace using rect mask.
 
 % file_dir = '';
+% start_frame = 324;
+% end_frame = 1199;
 
 path_g = fullfile(file_dir,'regist2atlas','g');
 path_r = fullfile(file_dir,'regist2atlas','r');
-CalTrace_path = fullfile(file_dir,'CalTrace_Rect');
+CalTrace_path = fullfile(file_dir,'back_up','CalTrace_Rect');
 if ~exist(CalTrace_path,'dir')
     mkdir(CalTrace_path);
 end
@@ -16,10 +18,8 @@ end
 pre_name_green = 'ants_g_';
 pre_name_red = 'ants_r_';
 
-batch_size = 1;
 rect_size = [8,8,6];
-% start_frame = 324;
-% end_frame = 1199;
+
 files = dir(fullfile(path_g,[pre_name_green,'*.nii']));
 [~,name_num] = sortName(files);
 if ~exist('start_frame',"var")
@@ -42,8 +42,11 @@ save(fullfile(CalTrace_path,'G_Coherence.mat'),'Coherence_G');
 disp('Green trace done.');
 
 % extract the red trace.
-R_trace = traceExtract_rect(path_r,pre_name_red,seg_regions,water_corMap,info_data,start_frame,batch_size,end_frame);
+R_trace = traceExtract_rect(path_r,pre_name_red,seg_regions,water_corMap,info_data,start_frame,end_frame,name_num);
 save(fullfile(CalTrace_path,'R_trace.mat'),'R_trace');
 disp('Red trace done.');
+
+Cal_index = name_num(start_frame:end_frame);
+save(fullfile(CalTrace_path,'Cal_index.mat'),'Cal_index');
 toc;
 

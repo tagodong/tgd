@@ -72,7 +72,7 @@ if ~exist('start_num','var')
 end
 
 if ~exist('end_num','var')
-    end_num = length(dir(fullfile(file_Path_Red,'*.tif')));
+    end_num = min(length(dir(fullfile(file_Path_Red,'*.tif'))),length(dir(fullfile(file_Path_Green,'*.tif'))));
 end
 
 if ~exist('step_size','var')

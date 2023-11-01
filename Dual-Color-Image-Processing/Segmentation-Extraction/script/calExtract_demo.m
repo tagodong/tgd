@@ -5,7 +5,7 @@
 % set path.
 file_dir = '/home/d1/kexin_raphe/norm/230619-01/back_up';
 
-% start_frame = 304;
+start_frame = 305;
 % end_frame = 2299;
 
 CalTrace_path = fullfile(file_dir,'CalTrace');
@@ -70,5 +70,8 @@ for j = 1:1
     R_trace = traceExtract(file_path_red,pre_name_red,value_name_red,seg_regions,water_corMap_filter,info_data,start_frame,end_frame,name_num);
     save(fullfile(CalTrace_path,'R_trace.mat'),'R_trace');
     disp('Red trace done.');
+    
+    Cal_index = name_num(start_frame:end_frame);
+    save(fullfile(CalTrace_path,'Cal_index.mat'),'Cal_index');
     toc;
 end

@@ -3,15 +3,15 @@
 ## Transform meantemplate to atlas.
 file_dir='/home/d1/kexin_raphe/norm'
 red_flag=0
-start_num=(301 301)
-end_num=(2315 2537)
+start_num=(301 301 304)
+end_num=(2315 2537 2298)
 
 zbb_atlas="/home/user/tgd/Dual-Color-Image-Processing/data/Atlas/Ref-zbb2.nii"
 
 file_name=$(ls $file_dir);
 file_name=(${file_name//,/ });
 # ${#file_name[*]}
-for ((i=0;i<2;i=i+1))
+for ((i=2;i<${#file_name[*]};i=i+1))
 do
     regist_out_path=$file_dir/${file_name[$i]}/regist2atlas
     mkdir $regist_out_path
@@ -72,6 +72,6 @@ do
     
     ## Extract the trace for rect mode.
     cd /home/user/tgd/Dual-Color-Image-Processing/Segmentation-Extraction/
-    matlab -nodesktop -nosplash -r "adpath; file_dir = '$file_dir/${file_name[$i]}'; calExtract_rect; quit"
+    matlab -nodesktop -nosplash -r "adpath; file_dir = '$file_dir/${file_name[$i]}'; start_frame = ${start_num[i]}; calExtract_rect; quit"
 
 done
