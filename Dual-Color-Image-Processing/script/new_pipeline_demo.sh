@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Set the path.
-file_path="/home/d1/kexin_raphe/norm"
+file_path="/home/d1/kexin_raphe/exp"
 file_name=$(ls $file_path);
 file_name=(${file_name//,/ });
 fix_flag=1
 Red_flag=0
-heart_flag=1
+heart_flag=0
 
 for ((i=0;i<${#file_name[*]};i=i+1))
 do

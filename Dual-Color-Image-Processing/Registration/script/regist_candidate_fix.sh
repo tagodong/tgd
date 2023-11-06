@@ -135,13 +135,6 @@ matlab -nodesktop -nosplash -r "template_path = '${template_path}'; demonsRegist
 cmtk average_images --avg --outfile-name ${template_path}/mean_template.nii ${template_path}/template_demons/template_demons*.nii
 matlab -nodesktop -nosplash -r "input = '${mean_template}'; output = '${mean_template}'; myunshort; quit"
 
-##### Regist to mean template.
-# Set the output green chanel image directory path that is registered.
-regist_red_path=${path_r}/Red_Registration
-mkdir $regist_red_path
-regist_green_path=${path_g}/Green_Registration
-mkdir $regist_green_path
-
 # Set the mean template path.
 mean_template=${template_path}/mean_template.nii
 
@@ -153,69 +146,12 @@ mkdir ${back_up_affine_path}
 cp ${mean_template} ${back_up_template_path}/mean_template.nii
 cp ${template_path}/zbb_SyN.nii.gz ${back_up_template_path}/zbb_SyN.nii.gz
 
+##### Regist to mean template.
+# Set the output green chanel image directory path that is registered.
+regist_red_path=${path_r}/Red_Registration
+mkdir $regist_red_path
+regist_green_path=${path_g}/Green_Registration
+mkdir $regist_green_path
+
 # Run affine registration.
-if [ $red_flag -eq 1 ]; then
-
-    file_name=$(ls ${green_path}/Green_Crop_*.nii);
-    file_name=(${file_name//,/ });
-    len=$(ls -l ${green_path}/Green_Crop_*.nii | grep "^-" | wc -l);
-
-    for ((i=0;i<$len;i=i+1))
-    do
-        name_num=$(basename -s .nii ${file_name[$i]});
-        
-        # Set k to the number of the name.
-        k=${name_num:11};
-
-        start_time=$(date +%s)
-
-        # Initialize affine matrix.
-        cmtk make_initial_affine --principal-axes $mean_template ${red_path}/Red_Crop_${k}.nii ${red_path}/initial${k}.xform
-        
-        # Generate affine matrix.
-        cmtk registration --initial ${red_path}/initial${k}.xform --dofs 6,12 --exploration 8 -s 0.25 --accuracy 0.05 --cr -o ${back_up_affine_path}/affine${k}.xform $mean_template ${red_path}/Red_Crop_${k}.nii
-
-        # Apply affine matrix.
-        cmtk reformatx -o ${regist_red_path}/Red_Affine_${k}.nii --floating ${red_path}/Red_Crop_${k}.nii $mean_template ${back_up_affine_path}/affine${k}.xform
-        # cmtk reformatx -o ${regist_green_path}/regist_green_${k}.nii --floating ${green_path}/Green_G2R${k}.nii $mean_template ${red_path}/affine${k}.xform
-        cmtk reformatx -o ${regist_green_path}/Green_Affine_${k}.nii --floating ${green_path}/Green_Crop_${k}.nii $mean_template ${back_up_affine_path}/affine${k}.xform
-
-        end_time=$(date +%s)
-        cost_time=$[ $end_time-$start_time ]
-        echo "Reg & Warp time is $(($cost_time/60))min $(($cost_time%60))s"
-        echo $name_num
-
-    done
-
-else
-
-    file_name=$(ls ${green_path}/Green_Crop_*.nii);
-    file_name=(${file_name//,/ });
-    len=$(ls -l ${green_path}/Green_Crop_*.nii | grep "^-" | wc -l);
-
-    for ((i=0;i<$len;i=i+1))
-    do
-        name_num=$(basename -s .nii ${file_name[$i]});
-        
-        # Set k to the number of the name.
-        k=${name_num:11};
-
-        start_time=$(date +%s)
-
-        # Initialize affine matrix.
-        cmtk make_initial_affine --principal-axes $mean_template ${green_path}/Green_Crop_${k}.nii ${green_path}/initial${k}.xform
-        
-        # Generate affine matrix.
-        cmtk registration --initial ${green_path}/initial${k}.xform --dofs 6,12 --exploration 8 -s 0.25 --accuracy 0.05 --cr -o ${back_up_affine_path}/affine${k}.xform $mean_template ${green_path}/Green_Crop_${k}.nii
-
-        # Apply affine matrix.
-        cmtk reformatx -o ${regist_red_path}/Red_Affine_${k}.nii --floating ${red_path}/Red_Crop_${k}.nii $mean_template ${back_up_affine_path}/affine${k}.xform
-        cmtk reformatx -o ${regist_green_path}/Green_Affine_${k}.nii --floating ${green_path}/Green_Crop_${k}.nii $mean_template ${back_up_affine_path}/affine${k}.xform
-
-        end_time=$(date +%s)
-        cost_time=$[ $end_time-$start_time ]
-        echo "Reg & Warp time is $(($cost_time/60))min $(($cost_time%60))s"
-        echo $name_num
-
-    done
-fi
+matlab -nodesktop -nosplash -r "cd ../; adpath; cd script;path_g = '${path_g}'; path_r = '${path_r}'; red_flag = $red_flag; regist_affine; quit"

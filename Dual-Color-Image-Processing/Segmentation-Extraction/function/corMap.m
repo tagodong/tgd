@@ -65,8 +65,8 @@ function [CalTrace,Coherence,seg_regions,water_corMap_filter,info_data] = corMap
     info_data.SD = SD;
     
     %% Third, calculate Corr,
-    for j=start_frame:end_frame
-        n = name_num(j);
+    for m=start_frame:end_frame
+        n = name_num(m);
         filename_in = [pre_name,num2str(n),input_extend];
         load(fullfile(file_path,filename_in),value_name);
         Y_shift = bsxfun(@minus,single(eval(value_name)),Y_mean);

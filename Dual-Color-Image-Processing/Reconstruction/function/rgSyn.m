@@ -1,6 +1,5 @@
 function [red_ObjRecon,green_ObjRecon] = rgSyn(red_ObjRecon,green_ObjRecon)
 %% Synchronize red and green.
-
     red_ObjRecon = flip(red_ObjRecon,2);
 
     % for new data.
