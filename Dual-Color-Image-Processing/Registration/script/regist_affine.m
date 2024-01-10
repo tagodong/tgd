@@ -28,7 +28,7 @@ spmd
     for i = 1+spmd_num*(spmdIndex-1):1+(spmd_num*spmdIndex-1)
             
         if i <= length(file_name)
-            myCMTK(path_g,path_r,red_flag,i);
+            myCMTK(path_g,path_r,red_flag,i-1);
         end
 
     end

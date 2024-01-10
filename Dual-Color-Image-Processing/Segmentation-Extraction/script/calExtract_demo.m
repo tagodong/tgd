@@ -3,9 +3,9 @@
 %% Segment brain regions using Correlation Map method and extract the calcium trace.
 
 % set path.
-file_dir = '/home/d1/kexin_raphe/norm/230619-01/back_up';
+file_dir = '/home/d1/daguang/2023-11-28_16-56-41_g8f_lssm_6dpf/back_up';
 
-start_frame = 305;
+start_frame = 1; % note it is the sort index.
 % end_frame = 2299;
 
 CalTrace_path = fullfile(file_dir,'CalTrace');

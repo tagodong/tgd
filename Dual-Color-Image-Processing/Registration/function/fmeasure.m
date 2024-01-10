@@ -1,4 +1,4 @@
-function FM = fmeasure(Image, Measure, ROI)
+function FM = fmeasure(Image, Measure, ROI, value_thresh)
     %This function measures the relative degree of focus of 
     %an image. It may be invoked as:
     %
@@ -157,7 +157,7 @@ function FM = fmeasure(Image, Measure, ROI)
             F3 = imfilter(Image, M3, 'replicate', 'conv');
             F4 = imfilter(Image, M1', 'replicate', 'conv');
             FM = abs(F1) + abs(F2) + abs(F3) + abs(F4);
-            FM = mean2(FM);
+            FM = mean(FM(Image>value_thresh))/mean(Image(Image>value_thresh),'all');
             
         case 'SFIL' %Steerable filters (Minhas2009)
             % Angles = [0 45 90 135 180 225 270 315];

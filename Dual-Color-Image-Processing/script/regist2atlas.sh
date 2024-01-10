@@ -1,17 +1,19 @@
 #!/bin/bash
 
 ## Transform meantemplate to atlas.
-file_dir='/home/d1/kexin_raphe/norm'
+file_dir='/home/d2/kexin/'
 red_flag=0
-start_num=(301 301 304)
-end_num=(2315 2537 2298)
+
+start_num=(0 0 4070) # Real number.
+end_num=(0 0 25980)
+step=10
 
 zbb_atlas="/home/user/tgd/Dual-Color-Image-Processing/data/Atlas/Ref-zbb2.nii"
 
 file_name=$(ls $file_dir);
 file_name=(${file_name//,/ });
 # ${#file_name[*]}
-for ((i=2;i<${#file_name[*]};i=i+1))
+for ((i=2;i<3;i=i+1))
 do
     regist_out_path=$file_dir/${file_name[$i]}/regist2atlas
     mkdir $regist_out_path
@@ -20,7 +22,7 @@ do
     # else
     #     mean_template=$file_dir/${file_name[$i]}/g/template/mean_template.nii
     # fi
-    mean_template=$file_dir/${file_name[$i]}/template/mean_template.nii
+    mean_template=$file_dir/${file_name[$i]}/back_up/template/mean_template.nii
 
     cd /home/user/tgd/Dual-Color-Image-Processing/Registration/script
     matlab -nodesktop -nosplash -r "input = '${mean_template}'; output = '${mean_template}'; myunshort; quit"
@@ -33,6 +35,8 @@ do
     -c [200x200x200x0,1e-8,10] -f 12x8x4x2 -s 4x3x2x1vox -t Affine[0.1] -m MI[$zbb_atlas,$mean_template,1,32,Regular,0.25] \
     -c [200x200x200x0,1e-8,10] -f 12x8x4x2 -s 4x3x2x1vox -t SyN[0.05,6,0.5] -m CC[$zbb_atlas,$mean_template,1,2] -c [200x200x200x200x10,1e-7,10] \
     -f 12x8x4x2x1 -s 4x3x2x1x0vox
+
+    mv ${regist_out_path}/mean2atlas_warped.nii.gz $file_dir/${file_name[$i]}/back_up/template/
 
     end_time=$(date +%s)
     cost_time=$[ $end_time-$start_time ]
@@ -55,7 +59,7 @@ do
     mkdir $path_ants_g
     mkdir $path_ants_r
 
-    for ((j=${start_num[i]};j<=${end_num[i]};j=j+1))
+    for ((j=${start_num[$i]};j<=${end_num[$i]};j=j+$step))
     do
 
         start_time=$(date +%s)
@@ -72,6 +76,6 @@ do
     
     ## Extract the trace for rect mode.
     cd /home/user/tgd/Dual-Color-Image-Processing/Segmentation-Extraction/
-    matlab -nodesktop -nosplash -r "adpath; file_dir = '$file_dir/${file_name[$i]}'; start_frame = ${start_num[i]}; calExtract_rect; quit"
+    matlab -nodesktop -nosplash -r "adpath; file_dir = '$file_dir/${file_name[$i]}'; start_frame = 1; calExtract_rect; quit"
 
 done

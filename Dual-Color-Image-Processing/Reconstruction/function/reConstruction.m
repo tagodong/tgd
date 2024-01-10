@@ -37,29 +37,29 @@ function reConstruction(file_path_red,file_path_green,red_flag,heart_flag,red_PS
         for i = start_frame+spmd_num*(spmdIndex-1)*step_size:step_size:start_frame+(spmd_num*spmdIndex-1)*step_size
             
             if i <= end_frame
-                tif_name = all_tifs_g{i};
+                tif_name = all_tifs{i};
 
                 % Extract the name num of the frame.
                 num_index=isstrprop(tif_name,'digit');
                 num = str2double(tif_name(num_index));
 
                 red_file_Name = fullfile(file_path_red,all_tifs{i});
-                green_file_Name = fullfile(file_path_green,all_tifs_g{i});
+                % green_file_Name = fullfile(file_path_green,all_tifs_g{i});
 
                 tic;
                 disp(['frame ',all_tifs{i},' start.']);
 
                 %% Reconstruct the red.
                 imstack = tif2mat(red_file_Name);
-                % imstack = flip(imstack,1); %% for daguang.
+                imstack = flip(imstack,1); %% for daguang.
                 red_ObjRecon = reConstruct(imstack,red_PSF);
 
                 % for old data.
                 % red_ObjRecon = reConstruct(imstack,flip(red_PSF,1));
 
                 %% Reconstruct the green.
-                imstack = tif2mat(green_file_Name);
-                green_ObjRecon = reConstruct(imstack,green_PSF);
+                % imstack = tif2mat(green_file_Name);
+                % green_ObjRecon = reConstruct(imstack,green_PSF);
 
                 %% Save the reconstructed result.
                 red_recon_path = fullfile(file_path_red,'..','back_up','Red_Recon');
@@ -68,14 +68,14 @@ function reConstruction(file_path_red,file_path_green,red_flag,heart_flag,red_PS
                 red_recon_MIP_name = ['Red_Recon_MIP_',num2str(num),'.tif'];
                 imageWrite(red_recon_path,red_recon_MIP_path,red_recon_name,red_recon_MIP_name,red_ObjRecon,1);
 
-                green_recon_path = fullfile(file_path_green,'..','back_up','Green_Recon');
-                green_recon_name = ['Green_Recon_',num2str(num),'.mat'];
-                green_recon_MIP_path = fullfile(file_path_green,'..','back_up','Green_Recon_MIP');
-                green_recon_MIP_name = ['Green_Recon_MIP_',num2str(num),'.tif'];
-                imageWrite(green_recon_path,green_recon_MIP_path,green_recon_name,green_recon_MIP_name,green_ObjRecon,1);
+                % green_recon_path = fullfile(file_path_green,'..','back_up','Green_Recon');
+                % green_recon_name = ['Green_Recon_',num2str(num),'.mat'];
+                % green_recon_MIP_path = fullfile(file_path_green,'..','back_up','Green_Recon_MIP');
+                % green_recon_MIP_name = ['Green_Recon_MIP_',num2str(num),'.tif'];
+                % imageWrite(green_recon_path,green_recon_MIP_path,green_recon_name,green_recon_MIP_name,green_ObjRecon,1);
 
                 %% Synchronize the red and green.
-                [red_ObjRecon,green_ObjRecon] = rgSyn(red_ObjRecon,green_ObjRecon);
+                [red_ObjRecon,green_ObjRecon] = rgSyn(red_ObjRecon,red_ObjRecon); %%%%%%%%%%%%
 
                 %% Important: Transform the green to register the red because of dissynchrony of dichroic mirrors.
                 green_ObjRecon = imwarp(green_ObjRecon,tform,'linear','OutputView',imref3d(size(red_ObjRecon)));

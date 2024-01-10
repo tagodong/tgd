@@ -4,17 +4,17 @@
 
 % Directory path of the tif multi-view light field images.
 % Note: in the demo, the name of the images is like '00000001.tif'.
-cd ../;
-adpath;
+% cd ../;
+% adpath;
 
 %% Initialize the parameters.
-% path_g="/home/d1/daguang/2023-12-06_16-47-30_g8f_lssm_8dpf/g";
-% path_r="/home/d1/daguang/2023-12-06_16-47-30_g8f_lssm_8dpf/r";
+path_g="/home/d2/tgd/test/g";
+path_r="/home/d2/tgd/test/r";
 % path_g="/home/d2/new_beads/g";
 % path_r="/home/d2/new_beads/r";
 % red_flag = 1;
-start_num = 3371;
-end_num = 9370;
+% start_num = 3371;
+% end_num = 9370;
 % step_size = 1;
 % heart_flag = 0; % Note your data.
 

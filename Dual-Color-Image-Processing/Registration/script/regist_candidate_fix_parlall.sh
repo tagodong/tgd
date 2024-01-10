@@ -162,14 +162,14 @@ process_frame() {
     if [ $red_flag -eq 0 ]; then
 
         # Initialize affine matrix.
-        cmtk make_initial_affine --principal-axes $mean_template ${green_path}/Green_Crop_${k}.nii ${green_path}/initial${k}.xform
+        cmtk make_initial_affine --centers-of-mass $mean_template ${green_path}/Green_Crop_${k}.nii ${green_path}/initial${k}.xform
         # Generate affine matrix.
         cmtk registration --initial ${green_path}/initial${k}.xform --dofs 6,12 --exploration 8 -s 0.25 --accuracy 0.05 --cr -o ${back_up_affine_path}/affine${k}.xform $mean_template ${green_path}/Green_Crop_${k}.nii
     
     else
 
         # Initialize affine matrix.
-        cmtk make_initial_affine --principal-axes $mean_template ${red_path}/Red_Crop_${k}.nii ${red_path}/initial${k}.xform
+        cmtk make_initial_affine --centers-of-mass $mean_template ${red_path}/Red_Crop_${k}.nii ${red_path}/initial${k}.xform
         # Generate affine matrix.
         cmtk registration --initial ${red_path}/initial${k}.xform --dofs 6,12 --exploration 8 -s 0.25 --accuracy 0.05 --cr -o ${back_up_affine_path}/affine${k}.xform $mean_template ${red_path}/Red_Crop_${k}.nii
     

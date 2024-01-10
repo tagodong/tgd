@@ -39,14 +39,14 @@ atlas = gpuArray(atlas);
         angle_azimuth = gather(angle_azimuth);
         angel_elevation = gather(angel_elevation);
         red_ObjRecon = imrotate(red_ObjRecon,-(angle_azimuth/pi*180),'bicubic','crop');
-        green_ObjRecon = imrotate(green_ObjRecon,-(angle_azimuth/pi*180),'bicubic','crop');
+        % green_ObjRecon = imrotate(green_ObjRecon,-(angle_azimuth/pi*180),'bicubic','crop');
 
         red_ObjRecon = permute(red_ObjRecon,[1 3 2]);
         red_ObjRecon = imrotate(red_ObjRecon,-(angel_elevation/pi*180),'bicubic','crop');
         red_ObjRecon = permute(red_ObjRecon,[1 3 2]);
-        green_ObjRecon = permute(green_ObjRecon,[1 3 2]);
-        green_ObjRecon = imrotate(green_ObjRecon,-(angel_elevation/pi*180),'bicubic','crop');
-        green_ObjRecon = permute(green_ObjRecon,[1 3 2]);
+        % green_ObjRecon = permute(green_ObjRecon,[1 3 2]);
+        % green_ObjRecon = imrotate(green_ObjRecon,-(angel_elevation/pi*180),'bicubic','crop');
+        % green_ObjRecon = permute(green_ObjRecon,[1 3 2]);
 
 %% second, check if the fish is right vertival whose head in the top using template matching, if not flip it.
         flip_flag = 0;
@@ -59,7 +59,7 @@ atlas = gpuArray(atlas);
 
         if max(flip_corr,[],'all') > max(cross_corr,[],'all')
             red_ObjRecon = imrotate(red_ObjRecon,180,'bicubic', 'crop');
-            green_ObjRecon = imrotate(green_ObjRecon,180,'bicubic', 'crop');
+            % green_ObjRecon = imrotate(green_ObjRecon,180,'bicubic', 'crop');
             flip_flag = 1;
         end
 
@@ -110,7 +110,7 @@ atlas = gpuArray(atlas);
     end
 
     red_ObjRecon = red_ObjRecon((1+image_size(1)):image_size(2),(1+image_size(3)):image_size(4),(1+image_size(5)):image_size(6));
-    green_ObjRecon = green_ObjRecon((1+image_size(1)):image_size(2),(1+image_size(3)):image_size(4),(1+image_size(5)):image_size(6));
+    % green_ObjRecon = green_ObjRecon((1+image_size(1)):image_size(2),(1+image_size(3)):image_size(4),(1+image_size(5)):image_size(6));
 
 %% Finaly, interp the image and save them.
     % [X_bound,Y_bound,Z_bound] = size(red_ObjRecon);
@@ -146,11 +146,11 @@ atlas = gpuArray(atlas);
     imageWrite(red_crop_path,red_crop_MIP_path,red_crop_name,red_crop_mip_name,red_ObjRecon,2);
 
     % For Green.
-    green_crop_path = fullfile(file_path_green,'Green_Crop');
-    green_crop_MIP_path = fullfile(file_path_green,'..','back_up','Green_Crop_MIP');
-    green_crop_name = ['Green_Crop_',num2str(num),'.nii'];
-    green_crop_mip_name = ['Green_Crop_MIP_',num2str(num),'.tif'];
-    imageWrite(green_crop_path,green_crop_MIP_path,green_crop_name,green_crop_mip_name,green_ObjRecon,2);
+    % green_crop_path = fullfile(file_path_green,'Green_Crop');
+    % green_crop_MIP_path = fullfile(file_path_green,'..','back_up','Green_Crop_MIP');
+    % green_crop_name = ['Green_Crop_',num2str(num),'.nii'];
+    % green_crop_mip_name = ['Green_Crop_MIP_',num2str(num),'.tif'];
+    % imageWrite(green_crop_path,green_crop_MIP_path,green_crop_name,green_crop_mip_name,green_ObjRecon,2);
 
     % For parameters.
     parameter_path = fullfile(file_path_red,'..','back_up','Parameters');

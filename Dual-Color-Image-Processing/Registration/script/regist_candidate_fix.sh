@@ -39,7 +39,7 @@ zbbfish="/home/user/tgd/Dual-Color-Image-Processing/data/Atlas/Ref-zbb2.nii"
 
 #         start_time=$(date +%s)
 #         # Initialize affine matrix.
-#         cmtk make_initial_affine --principal-axes ${red_path}/Red${k}.nii ${green_path}/Green${k}.nii ${G2R_path}/initial${k}.xform
+#         cmtk make_initial_affine --centers-of-mass ${red_path}/Red${k}.nii ${green_path}/Green${k}.nii ${G2R_path}/initial${k}.xform
         
 #         # Generate affine matrix.
 #         cmtk registration --initial ${G2R_path}/initial${k}.xform --dofs 6,12 --exploration 8 --accuracy 0.05 --cr -o ${G2R_path}/affine${k}.xform ${red_path}/Red${k}.nii ${green_path}/Green${k}.nii
@@ -57,7 +57,7 @@ zbbfish="/home/user/tgd/Dual-Color-Image-Processing/data/Atlas/Ref-zbb2.nii"
 
 ###### Regist best candidate template.
 # Initialize affine matrix.
-cmtk make_initial_affine --principal-axes $zbbfish ${template_path}/Best_Can_template.nii ${template_path}/Best_initial.xform
+cmtk make_initial_affine --centers-of-mass $zbbfish ${template_path}/Best_Can_template.nii ${template_path}/Best_initial.xform
 
 # Generate affine matrix.
 cmtk registration --initial ${template_path}/Best_initial.xform --dofs 6,6 --exploration 6 -f 0.1 -s 0.25 --accuracy 0.01 --cr -o ${template_path}/Best_affine.xform $zbbfish ${template_path}/Best_Can_template.nii
@@ -83,7 +83,7 @@ do
     start_time=$(date +%s)
 
     # Initialize affine matrix.
-    cmtk make_initial_affine --principal-axes ${template_path}/Best_mean_template.nii ${template_path}/Can_template${k}.nii ${Affine_template_path}/initial${k}.xform
+    cmtk make_initial_affine --centers-of-mass ${template_path}/Best_mean_template.nii ${template_path}/Can_template${k}.nii ${Affine_template_path}/initial${k}.xform
     
     # Generate affine matrix.
     cmtk registration --initial ${Affine_template_path}/initial${k}.xform --dofs 6,12 --exploration 6 -f 0.1 -s 0.25 --accuracy 0.01 --cr -o ${Affine_template_path}/affine${k}.xform ${template_path}/Best_mean_template.nii ${template_path}/Can_template${k}.nii

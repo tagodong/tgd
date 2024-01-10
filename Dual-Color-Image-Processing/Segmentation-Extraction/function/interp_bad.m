@@ -1,4 +1,4 @@
-function interp_bad(file_path,pre_name,index_pre,index_post,red_flag)
+function interp_bad(file_path,pre_name,index_pre,index_post,red_flag,step)
 %% function summary: interp bad image using linear interpolation.
 
 %  input:
@@ -22,7 +22,7 @@ function interp_bad(file_path,pre_name,index_pre,index_post,red_flag)
     load(fullfile(file_path,index_post_name),'ObjRecon');
     ObjRecon_post = ObjRecon;
 
-    for i=index_pre+1:index_post-1
+    for i=index_pre+step:step:index_post-step
         a = (i - index_pre)/(index_post - index_pre); % the weight
         ObjRecon = uint16((1-a)*single(ObjRecon_pre) + a*single(ObjRecon_post));
 

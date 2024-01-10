@@ -1,4 +1,4 @@
-function reConstruction_temp(file_path_red,file_path_green,red_flag,heart_flag,red_PSF,green_PSF,atlas,crop_size,start_frame,step_size,end_frame,tform,x_shift,gpu_index)
+function reConstruction_temp(file_path_red,file_path_green,red_flag,heart_flag,red_PSF,green_PSF,atlas,crop_size,start_frame,step_size,end_frame,tform,x_shift,gpu_index,idx_frame_left_final)
 %% function summary: reconstruct frames.
 
 %  input:
@@ -42,8 +42,11 @@ function reConstruction_temp(file_path_red,file_path_green,red_flag,heart_flag,r
                 % Extract the name num of the frame.
                 num_index=isstrprop(tif_name,'digit');
                 num = str2double(tif_name(num_index));
+                if ~ismember(num,idx_frame_left_final)
+                    continue;
+                end
 
-                red_file_Name = fullfile(file_path_red,all_tifs{i});
+                red_file_Name = fullfile(file_path_red,all_tifs{i}); %%%%
                 green_file_Name = fullfile(file_path_green,all_tifs_g{i});
 
                 tic;
@@ -51,18 +54,12 @@ function reConstruction_temp(file_path_red,file_path_green,red_flag,heart_flag,r
 
                 %% Reconstruct the red.
                 imstack = tif2mat(red_file_Name);
-                % imstack = flip(imstack,1); %% for daguang.
+                imstack = flip(imstack,1); %% for daguang and yu bin.
                 red_ObjRecon = reConstruct(imstack,red_PSF);
 
                 %% Reconstruct the green.
                 imstack = tif2mat(green_file_Name);
                 green_ObjRecon = reConstruct(imstack,green_PSF);
-
-                %% Synchronize the red and green.
-                [red_ObjRecon,green_ObjRecon] = rgSyn(red_ObjRecon,green_ObjRecon);
-
-                %% Important: Transform the green to register the red because of dissynchrony of dichroic mirrors.
-                green_ObjRecon = imwarp(green_ObjRecon,tform,'linear','OutputView',imref3d(size(red_ObjRecon)));
                 toc;
 
                 %% Save the reconstructed result.
@@ -78,15 +75,21 @@ function reConstruction_temp(file_path_red,file_path_green,red_flag,heart_flag,r
                 green_recon_MIP_name = ['Green_Recon_MIP_',num2str(num),'.tif'];
                 imageWrite(green_recon_path,green_recon_MIP_path,green_recon_name,green_recon_MIP_name,green_ObjRecon,1);
                 
+                %% Synchronize the red and green.
+                [red_ObjRecon,green_ObjRecon] = rgSyn(red_ObjRecon,green_ObjRecon);
+
+                %% Important: Transform the green to register the red because of dissynchrony of dichroic mirrors.
+                green_ObjRecon = imwarp(green_ObjRecon,tform,'linear','OutputView',imref3d(size(red_ObjRecon)));
+
                 % Crop the black background and rotate the two ObjRecons.
-                % disp('dual crop start.');
-                % tic;
-                % if red_flag
-                %     dualCrop(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path_green,num,atlas,crop_size,x_shift);
-                % else
-                %     dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path_green,num,atlas,crop_size,x_shift);
-                % end
-                % toc;
+                disp('dual crop start.');
+                tic;
+                if red_flag
+                    dual_Crop_temp(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path_green,num,atlas,crop_size,x_shift);
+                else
+                    dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path_green,num,atlas,crop_size,x_shift);
+                end
+                toc;
                 disp(['frame ',num2str(num),' end.']);
             end
             
