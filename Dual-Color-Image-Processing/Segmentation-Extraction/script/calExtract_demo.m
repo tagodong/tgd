@@ -2,11 +2,12 @@
 
 %% Segment brain regions using Correlation Map method and extract the calcium trace.
 
+clear
 % set path.
-file_dir = '/home/d1/daguang/2023-11-28_16-56-41_g8f_lssm_6dpf/back_up';
+file_dir = '/home/d1/kexin_raphe/0410-01/back_up/';
 
-start_frame = 1; % note it is the sort index.
-% end_frame = 2299;
+start_frame = 399; % note it is the sort index.
+% end_frame = 7165;
 
 CalTrace_path = fullfile(file_dir,'CalTrace');
 if ~exist(CalTrace_path,'dir')
@@ -48,7 +49,7 @@ for j = 1:1
     thresh.min = 2;
 
     % set the minimum size of segmented regions. 
-    min_size = 2; %% 14
+    min_size = 9;
 
     % set the start and end.
     % start_frame = start_num(j);
@@ -57,7 +58,7 @@ for j = 1:1
 
     % extract the green trace.
     tic;
-    [G_trace,Coherence_G,seg_regions,water_corMap_filter,info_data] = corMap(file_path_green,pre_name_green,value_name_green,start_frame,end_frame,name_num,ad_dist,thresh,min_size);
+    [G_trace,Coherence_G,seg_regions,water_corMap_filter,Corr] = corMap(file_path_green,pre_name_green,value_name_green,start_frame,end_frame,name_num,ad_dist,thresh,min_size);
     save(fullfile(CalTrace_path,'G_trace.mat'),'G_trace');
     save(fullfile(CalTrace_path,'G_Coherence.mat'),'Coherence_G');
     save(fullfile(CalTrace_path,'seg_regions.mat'),'seg_regions');
@@ -66,11 +67,11 @@ for j = 1:1
 
     % extract the red trace.
     write_flag = 1;
-    R_trace = traceExtract(file_path_red,pre_name_red,value_name_red,seg_regions,water_corMap_filter,info_data,start_frame,end_frame,name_num);
+    R_trace = traceExtract2(file_path_red,pre_name_red,value_name_red,seg_regions,start_frame,end_frame,name_num);
     save(fullfile(CalTrace_path,'R_trace.mat'),'R_trace');
     disp('Red trace done.');
 
-    Cal_index = name_num(start_frame:end_frame);
+    Cal_index = name_num(start_frame:end_frame); % file name.
     save(fullfile(CalTrace_path,'Cal_index.mat'),'Cal_index');
     toc;
 end

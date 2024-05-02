@@ -1,4 +1,4 @@
-function cropEye_Mask(file_path_red,file_path_green,start_frame,step_size,end_frame,num_index,Mask)
+function cropEye_Mask(file_path_red,file_path_green,start_frame,step_size,end_frame,num_index,Mask,Red_have)
 %% function summary: crop the fish eyes using the mask.
 
 %  input:
@@ -19,20 +19,22 @@ function cropEye_Mask(file_path_red,file_path_green,start_frame,step_size,end_fr
         ii = num_index(i);
         disp(['frame ',num2str(ii),' start.']);
 
-        % read the images.
-        red_image = niftiread(fullfile(file_path_red,['Red_Affine_',num2str(ii),'.nii']));
-        green_image = niftiread(fullfile(file_path_green,['Green_Affine_',num2str(ii),'.nii']));
-
         % Run Mask to crop eyes.
-        green_mask_image=green_image.*Mask;
-        red_mask_image=red_image.*Mask;
+        if Red_have
+            red_image = niftiread(fullfile(file_path_red,['Red_Affine_',num2str(ii),'.nii']));
+            red_mask_image=red_image.*Mask;
 
-        % imwrite images.
-        red_mask_path = fullfile(file_path_red,'Red_Mask');
-        red_mask_name = ['Red_Mask_',num2str(ii),'.mat'];
-        red_mask_MIP_path = fullfile(file_path_red,'..','..','back_up','Red_Mask_MIP');
-        red_mask_MIP_name = ['Red_Mask_MIP_',num2str(ii),'.tif'];
-        imageWrite(red_mask_path,red_mask_MIP_path,red_mask_name,red_mask_MIP_name,red_mask_image,1);
+            % imwrite images.
+            red_mask_path = fullfile(file_path_red,'Red_Mask');
+            red_mask_name = ['Red_Mask_',num2str(ii),'.mat'];
+            red_mask_MIP_path = fullfile(file_path_red,'..','..','back_up','Red_Mask_MIP');
+            red_mask_MIP_name = ['Red_Mask_MIP_',num2str(ii),'.tif'];
+            imageWrite(red_mask_path,red_mask_MIP_path,red_mask_name,red_mask_MIP_name,red_mask_image,1);
+        end
+        
+
+        green_image = niftiread(fullfile(file_path_green,['Green_Affine_',num2str(ii),'.nii']));
+        green_mask_image=green_image.*Mask;
 
         green_mask_path = fullfile(file_path_green,'Green_Mask');
         green_mask_name = ['Green_Mask_',num2str(ii),'.mat'];

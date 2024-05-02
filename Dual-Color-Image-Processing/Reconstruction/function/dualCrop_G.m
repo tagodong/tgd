@@ -1,28 +1,36 @@
-function dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path_green,num,atlas,crop_size,x_shift)
-    %% function summary: Crop the black background and rotate the two ObjRecons. 
+function dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,red_have,file_path_red,file_path_green,num,atlas,crop_size,x_shift)
+    %% function summary: Crop the black background and rotate the two ObjRecons using G as reference. 
     
     %  input:
     %   red_ObjRecon --- the ObjRecon of reconstructed red frame.
     %   green_ObjRecon --- the ObjRecon of reconstructed green frame.
+    %   heart_flag --- whether has heart fluorescence.
     %   file_path_red --- the directory path of red frames.
     %   file_path_green --- the directory path of green frames.
     %   num --- the number of current frame name.
+    %   atlas --- the registered template.
+    %   crop_size --- the image size of cropped.
+    %   x_shift --- the x direction shift.
     
     %  write: This function will generate four directories under both file_path_red and 
     % file_path_green.
-    %   recon_mat --- contain the reconstructed images in mat format.
-    %   recon_MIPs --- contain the maximum intensity projections in three directions of the reconstructed images.
-    %   dual_Crop --- Contain images in nii format which were cropped and rotated.
-    %   dual_MIPs --- contain the maximum intensity projections in three directions of the images in dual_Crop.
-    
+    %   Green/Red_Crop --- Contain images in nii format which were cropped and rotated.
+    %   Green/Red_Crop_MIPs --- Contain the maximum intensity projections in three directions of the images in Green/Red_Crop.
+   
     %   update 2023.11.30.
         
     atlas = gpuArray(atlas);
 
 %% If the fish has fluorescent in its heart, we need to crop it.
     if heart_flag
-        red_ObjRecon = red_ObjRecon(:,:,1:225);
-        green_ObjRecon = green_ObjRecon(:,:,1:225);
+
+        % red_ObjRecon = red_ObjRecon(:,:,1:225);
+        % green_ObjRecon = green_ObjRecon(:,:,1:225);
+        if red_have
+            red_ObjRecon(436:600,:,226:300) = 0;
+        end
+        green_ObjRecon(436:600,:,226:300) = 0;
+
     end
     
 %% First, rotate the fish to vertical in XY plane
@@ -38,15 +46,17 @@ function dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_pa
         [angle_azimuth,angel_elevation] = cart2sph(cor_coef(1,1),cor_coef(2,1),cor_coef(3,1));
         angle_azimuth = gather(angle_azimuth);
         angel_elevation = gather(angel_elevation);
-        red_ObjRecon = imrotate(red_ObjRecon,-(angle_azimuth/pi*180),'bicubic','crop');
         green_ObjRecon = imrotate(green_ObjRecon,-(angle_azimuth/pi*180),'bicubic','crop');
-
-        red_ObjRecon = permute(red_ObjRecon,[1 3 2]);
-        red_ObjRecon = imrotate(red_ObjRecon,-(angel_elevation/pi*180),'bicubic','crop');
-        red_ObjRecon = permute(red_ObjRecon,[1 3 2]);
         green_ObjRecon = permute(green_ObjRecon,[1 3 2]);
         green_ObjRecon = imrotate(green_ObjRecon,-(angel_elevation/pi*180),'bicubic','crop');
         green_ObjRecon = permute(green_ObjRecon,[1 3 2]);
+
+        if red_have
+            red_ObjRecon = imrotate(red_ObjRecon,-(angle_azimuth/pi*180),'bicubic','crop');
+            red_ObjRecon = permute(red_ObjRecon,[1 3 2]);
+            red_ObjRecon = imrotate(red_ObjRecon,-(angel_elevation/pi*180),'bicubic','crop');
+            red_ObjRecon = permute(red_ObjRecon,[1 3 2]);
+        end
 
 %% second, check if the fish is right vertival whose head in the top using template matching, if not flip it.
         flip_flag = 0;
@@ -57,7 +67,9 @@ function dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_pa
         flip_corr = normxcorr2(zbb_xy_MIP_flip,green_xy_MIP);
 
         if max(flip_corr,[],'all') > max(cross_corr,[],'all')
-            red_ObjRecon = imrotate(red_ObjRecon,180,'bicubic', 'crop');
+            if red_have
+                red_ObjRecon = imrotate(red_ObjRecon,180,'bicubic', 'crop');
+            end
             green_ObjRecon = imrotate(green_ObjRecon,180,'bicubic', 'crop');
             flip_flag = 1;
         end
@@ -107,7 +119,9 @@ function dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_pa
         end
     end
 
-    red_ObjRecon = red_ObjRecon((1+image_size(1)):image_size(2),(1+image_size(3)):image_size(4),(1+image_size(5)):image_size(6));
+    if red_have
+        red_ObjRecon = red_ObjRecon((1+image_size(1)):image_size(2),(1+image_size(3)):image_size(4),(1+image_size(5)):image_size(6));
+    end
     green_ObjRecon = green_ObjRecon((1+image_size(1)):image_size(2),(1+image_size(3)):image_size(4),(1+image_size(5)):image_size(6));
     
 %% Finaly, interp the image and save them.
@@ -137,11 +151,13 @@ function dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_pa
 %% Write the results.
 
     % For Red.
-    red_crop_path = fullfile(file_path_red,'Red_Crop');
-    red_crop_MIP_path = fullfile(file_path_red,'..','back_up','Red_Crop_MIP');
-    red_crop_name = ['Red_Crop_',num2str(num),'.nii'];
-    red_crop_mip_name = ['Red_Crop_MIP_',num2str(num),'.tif'];
-    imageWrite(red_crop_path,red_crop_MIP_path,red_crop_name,red_crop_mip_name,red_ObjRecon,2);
+    if red_have
+        red_crop_path = fullfile(file_path_red,'Red_Crop');
+        red_crop_MIP_path = fullfile(file_path_red,'..','back_up','Red_Crop_MIP');
+        red_crop_name = ['Red_Crop_',num2str(num),'.nii'];
+        red_crop_mip_name = ['Red_Crop_MIP_',num2str(num),'.tif'];
+        imageWrite(red_crop_path,red_crop_MIP_path,red_crop_name,red_crop_mip_name,red_ObjRecon,2);
+    end
 
     % For Green.
     green_crop_path = fullfile(file_path_green,'Green_Crop');
@@ -154,9 +170,9 @@ function dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_pa
     parameter_path = fullfile(file_path_red,'..','back_up','Parameters');
     
     if rotation_flag == 1
-        save(fullfile(parameter_path,['Crop_parameter_',num2str(num),'.mat']),'angle_azimuth','angel_elevation','flip_flag','image_size','rotation_flag');
+        save(fullfile(parameter_path,['Crop_parameter_',num2str(num),'.mat']),'angle_azimuth','angel_elevation','flip_flag','image_size','rotation_flag','red_have');
     else
-        save(fullfile(parameter_path,['Crop_parameter_',num2str(num),'.mat']),'image_size','rotation_flag');
+        save(fullfile(parameter_path,['Crop_parameter_',num2str(num),'.mat']),'image_size','rotation_flag','red_have');
     end
     
 end

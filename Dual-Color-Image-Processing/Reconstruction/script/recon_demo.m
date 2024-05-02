@@ -10,17 +10,18 @@ adpath;
 %% Initialize the parameters.
 % path_g="/home/d1/daguang/2023-12-06_16-47-30_g8f_lssm_8dpf/g";
 % path_r="/home/d1/daguang/2023-12-06_16-47-30_g8f_lssm_8dpf/r";
-% path_g="/home/d2/new_beads/g";
-% path_r="/home/d2/new_beads/r";
+% path_g="/home/d2/Recon/VCD2.20/projection/add_noise";
+% path_r="/home/d2/Recon/VCD2.20/projection/add_noise";
 % red_flag = 1;
-start_num = 3371;
-end_num = 9370;
+% start_num = 4557;
+% end_num = 11731;
 % step_size = 1;
 % heart_flag = 0; % Note your data.
 
 file_Path_Red = path_r;
 file_Path_Green = path_g;
-% load(fullfile(file_Path_Red,'..','idx_frame_left_final.mat'),'idx_frame_left_final');
+% load(fullfile(file_Path_Red,'..','idx_frame_left_final_2023-12-06_16-47-30_g8s_lssm_8dpf.mat'),'idx_frame_left_man');
+% idx_frame_left_man = idx_frame_left_man + 14999;
 % idx_frame_left_final = start_num:end_num;
 
 % mkdir directories.
@@ -76,7 +77,12 @@ if ~exist('start_num','var')
 end
 
 if ~exist('end_num','var')
-    end_num = min(length(dir(fullfile(file_Path_Red,'*.tif'))),length(dir(fullfile(file_Path_Green,'*.tif'))));
+    if Red_have
+        end_num = min(length(dir(fullfile(file_Path_Red,'*.tif'))),length(dir(fullfile(file_Path_Green,'*.tif'))));
+    else
+        end_num = length(dir(fullfile(file_Path_Green,'*.tif')));
+    end
+    
 end
 
 if ~exist('step_size','var')
@@ -87,9 +93,13 @@ if ~exist('x_shift','var')
     x_shift = 80;
 end
 
+if ~exist('Red_have','var')
+    Red_have = 1;
+end
+
 % Run reconstruction and crop the black background.
 tic;
-    reConstruction_norm(file_Path_Red,file_Path_Green,red_flag,heart_flag,red_PSF,green_PSF,atlas,crop_size,start_num,step_size,end_num,tform,x_shift,gpu_index);
+    reConstruction_norm(file_Path_Red,file_Path_Green,red_flag,heart_flag,Red_have,red_PSF,green_PSF,atlas,crop_size,start_num,step_size,end_num,tform,x_shift,gpu_index);
 toc;
 
 save(fullfile(file_Path_Green,'..','back_up','Parameters','base.mat'),'heart_flag','tform');

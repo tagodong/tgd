@@ -1,5 +1,12 @@
 function [candidate_templates,NR_scores,pixels_thresh] = canTemplateFind(MIPs_path,inter_step,thresh_pixels,zbb_MIP,isoRm_flag,Red_flag,value_thresh)
-    %% Find candidate template from dataset.
+    %% Generate candidate template from dataset.
+    % MIPs_path --- the recon_crop_mip path.
+    % inter_step --- how many frames to generate a template.
+    % thresh_pixels --- if pixeles lower than threshold of thresh_pixels*median(MIPs), will be set 0.
+    % zbb_MIP --- global best image.
+    % isoRm_flag --- always be 1.
+    % Red_flag --- wether use red channel image.
+    % value_thresh --- used as thresh for whether is object.
     %% 2023,07,21
     
     Red_MIPs = dir(fullfile(MIPs_path,'*.tif'));
@@ -30,12 +37,15 @@ function [candidate_templates,NR_scores,pixels_thresh] = canTemplateFind(MIPs_pa
     [sort_name_num,sort_name_idx] = sort(name_num);
     NR_scores = NR_scores(sort_name_idx,:);
     
+    %% Abandon the outlier frames.
+    NR_scores_filter = isoRm(NR_scores,0.5,2);
+
     %% Select local optimal NR_scores.
-    step_num = floor(size(NR_scores,1)/inter_step);
-    inter_NR_scores = reshape(NR_scores(1:step_num*inter_step,1),inter_step,[]);
-    opt_inter_NR_score = prctile(inter_NR_scores,90);
+    step_num = floor(size(NR_scores_filter,1)/inter_step);
+    inter_NR_scores = reshape(NR_scores_filter(1:step_num*inter_step,1),inter_step,[]);
+    opt_inter_NR_score = prctile(inter_NR_scores,95);
     if isoRm_flag
-        opt_inter_NR_score = isoRm(opt_inter_NR_score);
+        opt_inter_NR_score = isoRm(opt_inter_NR_score');
     end
     opt_inter_NR_id = zeros(1,1);
     template_num = 0;
@@ -44,15 +54,13 @@ function [candidate_templates,NR_scores,pixels_thresh] = canTemplateFind(MIPs_pa
             continue;
         end
         template_num = template_num + 1;
-        [~,index_temp] = min(abs(NR_scores(1+inter_step*(i-1):inter_step*i,1)-opt_inter_NR_score(i)));
+        [~,index_temp] = min(abs(NR_scores_filter(1+inter_step*(i-1):inter_step*i,1)-opt_inter_NR_score(i)));
         opt_inter_NR_id(template_num) = inter_step*(i-1)+index_temp;
     end
 
     %% Select twice using cross correlation.
     opt_inter_NR_cor = NR_scores(opt_inter_NR_id,2);
-    if isoRm_flag
-        opt_inter_NR_cor = isoRm(opt_inter_NR_cor);
-    end
+    opt_inter_NR_cor = isoRm(opt_inter_NR_cor);
     opt_inter_NR_id = opt_inter_NR_id(~isnan(opt_inter_NR_cor));
 
     %% Save the candidate templates.

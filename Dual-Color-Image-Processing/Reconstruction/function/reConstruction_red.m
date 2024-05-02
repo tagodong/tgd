@@ -40,7 +40,9 @@ function reConstruction(file_path_red,file_path_green,red_flag,heart_flag,red_PS
                 tif_name = all_tifs{i};
 
                 % Extract the name num of the frame.
-                num_index=isstrprop(tif_name,'digit');
+                tif_name = split(tif_name,'_');
+                tif_name = tif_name{4};
+                num_index = isstrprop(tif_name,'digit');
                 num = str2double(tif_name(num_index));
 
                 red_file_Name = fullfile(file_path_red,all_tifs{i});
@@ -52,7 +54,7 @@ function reConstruction(file_path_red,file_path_green,red_flag,heart_flag,red_PS
                 %% Reconstruct the red.
                 imstack = tif2mat(red_file_Name);
                 imstack = flip(imstack,1); %% for daguang.
-                red_ObjRecon = reConstruct(imstack,red_PSF);
+                red_ObjRecon = reConstruct(imstack,green_PSF); %%%% red_PSF !!!!!
 
                 % for old data.
                 % red_ObjRecon = reConstruct(imstack,flip(red_PSF,1));
@@ -85,7 +87,7 @@ function reConstruction(file_path_red,file_path_green,red_flag,heart_flag,red_PS
                 disp('dual crop start.');
                 tic;
                 if red_flag
-                    dualCrop(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path_green,num,atlas,crop_size,x_shift);
+                    dualCrop_red(red_ObjRecon,heart_flag,file_path_red,num,atlas,crop_size,x_shift);
                 else
                     dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path_green,num,atlas,crop_size,x_shift);
                 end

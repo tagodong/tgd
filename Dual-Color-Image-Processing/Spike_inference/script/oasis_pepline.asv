@@ -1,0 +1,73 @@
+%%%%%%%%%%%%%%
+%% spike inference pipeline
+%%%%%%%%%%%%%%
+% clear;
+% clc;
+
+%% load the data.
+% load('/home/tgd/matlab/Spike_inference/data/201125_len.mat');
+% load('/home/tgd/matlab/Spike_inference/data/Caltrace_201125.mat');
+% load('/home/tgd/matlab/data/0721/Caltrace_0721_new.mat');
+% load('/home/tgd/matlab/data/0804/Caltrace_0804_3.mat');
+% load('/home/tgd/matlab/data/201125/Cal_201125_new.mat');
+% load('/home/tgd/matlab/data/seizure/seizure_exp.mat');
+
+%% compute the DFOF.
+% % len = [1,3824];
+Cal_G = Cal_G(:,530:3300);
+Cal_G = Cal_G(:,[1:340,530:2771]);
+sequences = [1 340;341 2582];
+% sequences = [1 3104];
+[DFoF] = DFoF_compute(Cal_G,sequences);
+
+% %% interpolation of each ROI
+% DFoF = DFoF_interpolate(DFoF(logical(Judge),:));
+% save([dir2,'\DFoF_interpolate_corrected.mat'],'DFoF')
+
+%%
+detrend_ca = zeros(size(DFoF));
+for i = 1:size(sequences,1)
+    detrend_ca(:,sequences(i,1):sequences(i,2)) = prctfilt(DFoF(:,sequences(i,1):sequences(i,2)),15,50);
+end
+% save([dir2,'\detrend_ca.mat'],'detrend_ca')
+%%
+
+% load([dir2,'\detrend_ca.mat'],'detrend_ca');
+% load([dir1,'\sequences.mat'],'sequences');
+lambda_value = 0.5;
+% [sMatrix_total,denoise_ca,g,sn,lam,b] = deconv_OASIS(detrend_ca,sequences,lambda_value);
+Ca_trace = new_C(merge_SNR>2,:);
+Ca_trace = zscore(Ca_trace,[],2);
+[sMatrix_total,denoise_ca,g,sn,lam,b] = deconv_OASIS(Ca_trace,Fragments,lambda_value);
+%%
+% % save([dir1,'\spike_OASIS.mat'],'sMatrix_total');
+% save([dir2,'\spike_OASIS.mat'],'sMatrix_total');
+% 
+% save([dir2,'\denoise_ca.mat'],'denoise_ca');
+% save([dir2,'\spike_inference_output_param.mat'], 'g','sn','b');
+
+%% noise and artifact ROIs
+% detrend_ca_snr_noise_compute(ifish);
+% load(fullfile(dir2,'std_snr.mat'),'std_snr');
+% 
+detrend_ca_Z = zscore(detrend_ca,[],2);
+artifact_index = artifact_detect(detrend_ca_Z);
+std_snr = std_snr_compute(detrend_ca);
+% save([dir1,'\artifact_index.mat'],'artifact_index');
+Judge2 = artifact_index > 4.2 & std_snr > 0.6;
+sum(Judge2)
+% % save([dir1, '\Judge2.mat'],'Judge2');
+% % save([dir2, '\Judge2.mat'],'Judge2');
+% load([dir2, '\Judge2.mat'],'Judge2')
+% load([dir2,'\spike_OASIS.mat'],'sMatrix_total');
+% load([dir2,'\detrend_ca.mat'],'detrend_ca')
+% load([dir1,'\sequences.mat'],'sequences');
+% 
+% %%
+% % [~,i_sort] = sort(artifact_index,'ascend');
+% % i = i_sort(ii);
+% i = randsample(1000,1);
+% % sequences = [1, size(DFoF,2)];
+% global sequences;
+% trace_activity_plot2(detrend_ca(i,:), sMatrix_total(i,:));
+% % ii=ii+10;

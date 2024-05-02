@@ -1,4 +1,5 @@
 function imageWrite(file_obj_path,file_Mip_path,obj_name,obj_MIP_name,ObjRecon,pattern)
+%%  Write the image.
 
     %% save obj MIP.
     obj_MIP = [max(ObjRecon,[],3) squeeze(max(ObjRecon,[],2));squeeze(max(ObjRecon,[],1))' zeros(size(ObjRecon,3),size(ObjRecon,3))];

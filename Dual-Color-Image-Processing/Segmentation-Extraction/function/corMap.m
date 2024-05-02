@@ -1,4 +1,4 @@
-function [CalTrace,Coherence,seg_regions,water_corMap_filter,info_data] = corMap(file_path,pre_name,value_name,start_frame,end_frame,name_num,ad_dist,thresh,min_size)
+function [CalTrace,Coherence,seg_regions,water_corMap_filter,Corr,info_data] = corMap(file_path,pre_name,value_name,start_frame,end_frame,name_num,ad_dist,thresh,min_size)
     %% function summary: Segment brain regions using Correlation Map.
     
     %  input:
@@ -94,6 +94,8 @@ function [CalTrace,Coherence,seg_regions,water_corMap_filter,info_data] = corMap
     clear eval(value_name);
     min_Corr = min(Corr(:));
     max_Corr = max(Corr(:));
+    Corr(F_max<thresh.max) = -1;
+    Corr(F_min<thresh.min) = -1;
     Corr = (Corr-min_Corr)/(max_Corr-min_Corr);
     disp('Calculate correlation done.');
     
@@ -110,7 +112,6 @@ function [CalTrace,Coherence,seg_regions,water_corMap_filter,info_data] = corMap
         seg_regions(:,k) = sparse(reshape(temp,[dx*dy*dz,1]));
     end
     
-    clear Corr;
     clear F_max;
     clear F_min;
     clear temp;

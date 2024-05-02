@@ -1,4 +1,4 @@
-function [CalTrace_save,Coherence]=traceExtract_rect(file_path,pre_name,seg_regions,water_corMap,info_data,start_frame,end_frame,name_num)
+function [CalTrace_save]=traceExtract_rect(file_path,pre_name,seg_regions,start_frame,end_frame,name_num)
     %% function summary: extract calcium traces and calculate coherence.
     
     %  input:
@@ -37,54 +37,6 @@ function [CalTrace_save,Coherence]=traceExtract_rect(file_path,pre_name,seg_regi
             disp(ff);
         end
         CalTrace_save = CalTrace;
-        disp('CalTrace has been extracted.')
-    
-        clear temp;
-        clear Y_r;
-        
-        %% calculate the coherence map
-        ObjRecon = niftiread(fullfile(file_path,[pre_name,num2str(name_num(start_frame)),input_extend]));
-    
-        %% normalize CalTrace
-        CalTrace = CalTrace - mean(CalTrace,2);
-        SD_CalTrace = sqrt(sum(CalTrace.*CalTrace,2)/T);
-        SD_CalTrace = repmat(SD_CalTrace, 1,T);
-        CalTrace = CalTrace./SD_CalTrace;
-        
-        %% calculate coherence.
-        Coherence = zeros(size(ObjRecon),"single");
-        % [d1,d2,d3] = size(eval(value_name));
-        for tt=start_frame:end_frame
-            t = name_num(tt);
-            ObjRecon = niftiread(fullfile(file_path,[pre_name,num2str(t),input_extend]));
-            temp = zeros(size(Coherence),'single');
-            temp(water_corMap~=0) = CalTrace(water_corMap(water_corMap~=0),tt-start_frame+1);
-            
-            % temp = zeros(size(Coherence));
-            % disp(isgpuarray(temp));
-            % for i=1:d1
-            %     for j=1:d2
-            %         for k=1:d3
-            %             if water_corMap(i,j,k)==0
-            %                 temp(i,j,k) = 0;
-            %             else
-            %                 temp(i,j,k) = CalTrace(water_corMap(i,j,k),t);
-            %             end
-            %         end
-            %     end
-            % end
-            % disp(isgpuarray(temp));
-            % disp(sum(temp == temp1,"all"));
-    
-            Coherence = Coherence + (single(ObjRecon)-info_data.F_mean).*temp;
-        end
-        Coherence = Coherence./info_data.SD;
-        Coherence = Coherence/T;
-    
-        clear ObjRecon;
-        
-        %% Show histogram
-        % figure('Name','histogram of Coherence');
-        % histogram(Coherence,'Normalization','pdf');
+        disp('CalTrace has been extracted.');
     
     end

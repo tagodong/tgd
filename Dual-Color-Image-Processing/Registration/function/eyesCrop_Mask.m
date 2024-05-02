@@ -1,4 +1,4 @@
-function eyesCrop_Mask(file_path_red,file_path_green,start_frame,step_size,end_frame,num_index,Mask,thread_num)
+function eyesCrop_Mask(file_path_red,file_path_green,start_frame,step_size,end_frame,num_index,Mask,Red_have,thread_num)
 %% function summary: Crop the eyes according to the reference mask.
 
 %  input:
@@ -29,18 +29,21 @@ function eyesCrop_Mask(file_path_red,file_path_green,start_frame,step_size,end_f
     red_mask_MIPs_path = fullfile(file_path_red,'..','..','back_up','Red_Mask_MIP');
     green_mask_MIPs_path = fullfile(file_path_green,'..','..','back_up','Green_Mask_MIP');
     if ~exist(red_mask_path,"dir")
-        mkdir(red_mask_path);
+        if Red_have
+            mkdir(red_mask_path);
+            mkdir(red_mask_MIPs_path);
+        end
+        
         mkdir(green_mask_path);
-        mkdir(red_mask_MIPs_path);
         mkdir(green_mask_MIPs_path);
     end
 
     % run eyes crop using mask.
     spmd
         if start_frame+(spmd_num*spmdIndex-1)*step_size <= end_frame
-            cropEye_Mask(file_path_red,file_path_green,start_frame+spmd_num*(spmdIndex-1)*step_size,step_size,start_frame+(spmd_num*spmdIndex-1)*step_size,num_index,Mask);
+            cropEye_Mask(file_path_red,file_path_green,start_frame+spmd_num*(spmdIndex-1)*step_size,step_size,start_frame+(spmd_num*spmdIndex-1)*step_size,num_index,Mask,Red_have);
         else
-            cropEye_Mask(file_path_red,file_path_green,start_frame+spmd_num*(spmdIndex-1)*step_size,step_size,end_frame,num_index,Mask);
+            cropEye_Mask(file_path_red,file_path_green,start_frame+spmd_num*(spmdIndex-1)*step_size,step_size,end_frame,num_index,Mask,Red_have);
         end
     end
 

@@ -9,7 +9,7 @@ adpath;
 % Set parameters.
 % path_g="/home/d1/20230808_1638_8s-lssm-none_7dpf-fix/fix/g";
 % path_r="/home/d1/20230808_1638_8s-lssm-none_7dpf-fix/fix/r";
-% Red_flag = 0;
+% red_flag = 0;
 file_path_red = fullfile(path_r,'Red_Registration');
 file_path_green = fullfile(path_g,'Green_Registration');
 
@@ -22,8 +22,11 @@ end
 if ~exist('step_size','var')
     step_size = 1;
 end
+if ~exist('Red_have','var')
+    Red_have = 1;
+end
 
-file_path_template = fullfile(path_g,'..','template','mean_template.nii');
+file_path_template = fullfile(path_g,'..','back_up','template','mean_template.nii');
 
 refer_image = uint16(niftiread(file_path_template));
 
@@ -42,6 +45,6 @@ for i = 1:len
 end
 
 % demons registration for mean template.
-demonRegist(file_path_red,file_path_green,red_flag,start_num,step_size,end_num,num_index,refer_image,gpu_index);
+demonRegist(file_path_red,file_path_green,red_flag,Red_have,start_num,step_size,end_num,num_index,refer_image,gpu_index);
 
 disp('Demons registration work has done!');

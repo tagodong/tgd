@@ -14,7 +14,7 @@ adpath;
 file_path_red = fullfile(path_r,'Red_Registration');
 file_path_green = fullfile(path_g,'Green_Registration');
 
-template_path = fullfile(path_g,'..','template');
+template_path = fullfile(path_g,'..','back_up','template');
 
 if ~exist('Mask_path','var')
     Mask_path = fullfile(template_path,'zbb_SyN.nii.gz');
@@ -42,6 +42,6 @@ Mask = uint16(Mask>=1);
 step_size = 1; 
 
 % crop the eyes.
-eyesCrop_Mask(file_path_red,file_path_green,start_num,step_size,end_num,num_index,Mask,thread_num);
+eyesCrop_Mask(file_path_red,file_path_green,start_num,step_size,end_num,num_index,Mask,Red_have,thread_num);
 
 disp('Eyes crop work has done!!!');

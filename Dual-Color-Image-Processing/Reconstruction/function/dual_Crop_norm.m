@@ -1,19 +1,21 @@
-function dual_Crop_temp(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path_green,num,atlas,crop_size,x_shift)
+function dual_Crop_norm(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path_green,num,atlas,crop_size,x_shift)
     %% function summary: Crop the black background and rotate the two ObjRecons. 
     
     %  input:
     %   red_ObjRecon --- the ObjRecon of reconstructed red frame.
     %   green_ObjRecon --- the ObjRecon of reconstructed green frame.
+    %   heart_flag --- whether has heart fluorescence.
     %   file_path_red --- the directory path of red frames.
     %   file_path_green --- the directory path of green frames.
     %   num --- the number of current frame name.
+    %   atlas --- the registered template.
+    %   crop_size --- the image size of cropped.
+    %   x_shift --- the x direction shift.
     
     %  write: This function will generate four directories under both file_path_red and 
     % file_path_green.
-    %   recon_mat --- contain the reconstructed images in mat format.
-    %   recon_MIPs --- contain the maximum intensity projections in three directions of the reconstructed images.
-    %   dual_Crop --- Contain images in nii format which were cropped and rotated.
-    %   dual_MIPs --- contain the maximum intensity projections in three directions of the images in dual_Crop.
+    %   Green/Red_Crop --- Contain images in nii format which were cropped and rotated.
+    %   Green/Red_Crop_MIPs --- Contain the maximum intensity projections in three directions of the images in Green/Red_Crop.
     
     %   update 2023.10.17.
         
@@ -21,8 +23,11 @@ function dual_Crop_temp(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,fil
     
     %% If have heart expression, cut the heart.
         if heart_flag
-            red_ObjRecon = red_ObjRecon(:,:,1:225);
-            green_ObjRecon = green_ObjRecon(:,:,1:225);
+            % red_ObjRecon = red_ObjRecon(:,:,1:225);
+            % green_ObjRecon = green_ObjRecon(:,:,1:225);
+
+            red_ObjRecon(1:165,:,271:300) = 0;
+            green_ObjRecon(1:165,:,271:300) = 0;
         end
     
     %% First, rotate the fish to vertical in XY plane
@@ -62,6 +67,25 @@ function dual_Crop_temp(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,fil
                 green_ObjRecon = imrotate(green_ObjRecon,180,'bicubic', 'crop');
                 flip_flag = 1;
             end
+
+        %% Third, rotate the fish in xz plane.
+            red_yz_MIP = squeeze(max(red_ObjRecon,[],1));
+            red_yz_bw_MIP = red_yz_MIP > mean_thresh;
+            [cor_y,cor_z] = ind2sub(size(red_yz_bw_MIP),find(red_yz_bw_MIP));
+            cor_coef = pca([cor_y,cor_z]);
+            yz_angle = atan(cor_coef(2,1)/cor_coef(1,1))/pi*180;
+            yz_angle = gather(yz_angle);
+            if abs(yz_angle) > 90
+                yz_angle = yz_angle - 180;
+            end
+
+            red_ObjRecon = permute(red_ObjRecon,[2 3 1]);
+            red_ObjRecon = imrotate(red_ObjRecon,-yz_angle,'bicubic','crop');
+            red_ObjRecon = permute(red_ObjRecon,[3 1 2]);
+
+            green_ObjRecon = permute(green_ObjRecon,[2 3 1]);
+            green_ObjRecon = imrotate(green_ObjRecon,-yz_angle,'bicubic','crop');
+            green_ObjRecon = permute(green_ObjRecon,[3 1 2]);
     
             red_BW_ObjRecon = red_ObjRecon > mean(mean(mean(red_ObjRecon,'omitnan')+mean_thresh,'omitnan'),'omitnan');
             [cor_x,cor_y,cor_z] = ind2sub(size(red_BW_ObjRecon),find(red_BW_ObjRecon));
@@ -72,7 +96,7 @@ function dual_Crop_temp(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,fil
             CentroID = round(intial_size/2);
         end
     
-    %% Third, crop the background of the initial size (600*600*300 for us) to cropped size (400*308*210 for us).
+    %% Fourth, crop the background of the initial size (600*600*300 for us) to cropped size (400*308*210 for us).
     
         % get the first dimension size.
         CentroID(1) = CentroID(1) - x_shift; %% %% could be changed for different fish 80.
@@ -156,7 +180,7 @@ function dual_Crop_temp(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,fil
         parameter_path = fullfile(file_path_red,'..','back_up','Parameters');
     
         if rotation_flag == 1
-            save(fullfile(parameter_path,['Crop_parameter_',num2str(num),'.mat']),'angle_azimuth','angel_elevation','flip_flag','image_size','rotation_flag');
+            save(fullfile(parameter_path,['Crop_parameter_',num2str(num),'.mat']),'angle_azimuth','angel_elevation','flip_flag','image_size','rotation_flag','yz_angle');
         else
             save(fullfile(parameter_path,['Crop_parameter_',num2str(num),'.mat']),'image_size','rotation_flag');
         end

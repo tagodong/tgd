@@ -7,6 +7,7 @@
 path_g = fullfile(file_dir,'regist2atlas','g');
 path_r = fullfile(file_dir,'regist2atlas','r');
 CalTrace_path = fullfile(file_dir,'back_up','CalTrace_Rect');
+
 if ~exist(CalTrace_path,'dir')
     mkdir(CalTrace_path);
 end
@@ -22,6 +23,7 @@ rect_size = [8,8,6];
 
 files = dir(fullfile(path_g,[pre_name_green,'*.nii']));
 [~,name_num] = sortName(files);
+
 if ~exist('start_frame',"var")
     start_frame = 1;
 end
@@ -36,14 +38,13 @@ save(fullfile(CalTrace_path,'seg_regions.mat'),'seg_regions');
 save(fullfile(CalTrace_path,'water_corMap.mat'),'water_corMap');
 % extract the green trace.
 tic;
-[G_trace,Coherence_G] = traceExtract_rect(path_g,pre_name_green,seg_regions,water_corMap,info_data,start_frame,end_frame,name_num);
-save(fullfile(CalTrace_path,'G_trace.mat'),'G_trace');
-save(fullfile(CalTrace_path,'G_Coherence.mat'),'Coherence_G');
+[G_trace] = traceExtract_rect(path_g,pre_name_green,seg_regions,start_frame,end_frame,name_num);
+save(fullfile(CalTrace_path,'G_trace.mat'),'G_trace','-v7.3');
 disp('Green trace done.');
 
 % extract the red trace.
-R_trace = traceExtract_rect(path_r,pre_name_red,seg_regions,water_corMap,info_data,start_frame,end_frame,name_num);
-save(fullfile(CalTrace_path,'R_trace.mat'),'R_trace');
+R_trace = traceExtract_rect(path_r,pre_name_red,seg_regions,start_frame,end_frame,name_num);
+save(fullfile(CalTrace_path,'R_trace.mat'),'R_trace','-v7.3');
 disp('Red trace done.');
 
 Cal_index = name_num(start_frame:end_frame);

@@ -32,7 +32,7 @@ for j = 1:size(path_files_r,1)
     thresh.min = 2;
 
     % set the minimum size of segmented regions. 
-    min_size = 14;
+    min_size = 2;
 
     % set the start and end.
     start_frame = start_num(j);

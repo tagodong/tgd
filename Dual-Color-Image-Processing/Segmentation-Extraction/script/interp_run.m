@@ -7,9 +7,10 @@
 % adpath;
 
 % Set path.
-file_dir = '/home/d2/kexin/231228-01/back_up';
+clear
+file_dir = '/home/d1/kexin_raphe/0410-01/back_up/';
 CalTrace_path = fullfile(file_dir,'CalTrace');
-step = 10;
+step = 1;
 
 if ~exist(CalTrace_path,'dir')
     mkdir(CalTrace_path);
@@ -34,11 +35,12 @@ for j = 1:1
     % bad_index = 43999+sort([1209 1210 1241 1242 1270 1271 1272]);
     % bad_index = 43999+[74	75 76	85	86	87	305	306	331	332	333	490	491	492	510	511	512	554	555	964	965	966	1047	1048	1434	1435	1653	1658	1659	1665	1666	1835	1836	1837	1851	1852	1864	1865	1866	1948	1949	1998	1999	2000	2043	2044	2067	2068	2086	2087	2100	2101	2195	2196	2197	2347	2348	2349	2377	2399	2400	2409	2410	2452	2453	2471	2472	2596	2597	2598	2632	2633	2645	2646	2647	2752	2753	2754	2771	2802	2803	2804	2915	2940	2941	2963];
     
-    % load(fullfile(file_dir,'./bad_index.mat'),'bad_index_final');
+    load(fullfile(file_dir,'bad_index.mat'),'bad_index_final');
     % bad_index_final = bad_index_final(312:end);
-    % bad_index = sort(bad_index_final);
+    bad_index = sort(bad_index_final(399:end));
 
-    bad_index = [10380 19980]; % note it is the real index.
+    % bad_index = sort(bad_index_final2); % note it is the real index.
+    % bad_index = [327 1193 1727 2156 2424];
 
     %% Interp the bad index.
     num = 0;

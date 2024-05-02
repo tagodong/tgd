@@ -1,6 +1,6 @@
 #!/bin/bash
 
-file_path='/home/d1/kexin_raphe/exp'
+file_path='/home/d2/kexin/norm'
 
 dir_name=$(ls $file_path);
 dir_name=(${dir_name//,/ });

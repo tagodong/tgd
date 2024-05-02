@@ -85,7 +85,7 @@ function reConstruction_temp(file_path_red,file_path_green,red_flag,heart_flag,r
                 disp('dual crop start.');
                 tic;
                 if red_flag
-                    dual_Crop_temp(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path_green,num,atlas,crop_size,x_shift);
+                    dual_Crop_norm(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path_green,num,atlas,crop_size,x_shift);
                 else
                     dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path_green,num,atlas,crop_size,x_shift);
                 end

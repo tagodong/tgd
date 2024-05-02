@@ -2,7 +2,7 @@
 cd ../;
 adpath;
 % file_path="/home/d1/20230808_1638_8s-lssm-none_7dpf-fix/fix/g";
-% red_flag = 0; %%
+% red_flag = 0;
 if ~exist('inter_step','var')
     inter_step = 100;
 end

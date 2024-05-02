@@ -4,7 +4,6 @@ function ObjRecon = reConstruct(imstack,PSF)
 %  input:
 %   imstack --- the mat format from origion tif format.(the output of tif2mat.m)
 %   PSF --- the mat format of PSF file.
-%   red_flag --- if the frame is red then is true, else false.
 
 %  output:
 %   ObjRecon --- the mat format of reconstructed image.
@@ -13,7 +12,7 @@ function ObjRecon = reConstruct(imstack,PSF)
 
 %% Basic parameters.
     ItN=27;
-    BkgMean=110;
+    BkgMean=120;
     ROISize=300;
     SNR=200;
     NxyExt=128;

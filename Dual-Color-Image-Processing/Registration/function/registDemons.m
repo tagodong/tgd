@@ -1,4 +1,4 @@
-function registDemons(file_path_red,file_path_green,red_flag,start_frame,step_size,end_frame,num_index,refer_image)
+function registDemons(file_path_red,file_path_green,red_flag,Red_have,start_frame,step_size,end_frame,num_index,refer_image)
 %% function summary: muti thread regist the fish image using demons method.
 
 %  input:
@@ -21,42 +21,48 @@ function registDemons(file_path_red,file_path_green,red_flag,start_frame,step_si
         disp(['frame ',num2str(i),' start.']);
 
         % Read image.
-        red_mask_path = fullfile(file_path_red,'Red_Mask');
-        red_mask_name = ['Red_Mask_',num2str(i),'.mat'];
-        load(fullfile(red_mask_path,red_mask_name),'ObjRecon');
-        red_mask_image = ObjRecon;
+        if Red_have
+            red_mask_path = fullfile(file_path_red,'Red_Mask');
+            red_mask_name = ['Red_Mask_',num2str(i),'.mat'];
+            load(fullfile(red_mask_path,red_mask_name),'ObjRecon');
+            red_mask_image = ObjRecon;
+            red_mask_image = gpuArray(red_mask_image);
+        end
 
         green_mask_path = fullfile(file_path_green,'Green_Mask');
         green_mask_name = ['Green_Mask_',num2str(i),'.mat'];
         load(fullfile(green_mask_path,green_mask_name),'ObjRecon');
         green_mask_image = ObjRecon;
+        green_mask_image = gpuArray(green_mask_image);
 
         % apply affine transformation.
-        red_mask_image = gpuArray(red_mask_image);
         refer_image = gpuArray(refer_image);
-        green_mask_image = gpuArray(green_mask_image);
 
         if red_flag
 
-            [D,red_demons] = imregdemons(red_mask_image,refer_image,[500 500 400 200],'PyramidLevels',4,'AccumulatedFieldSmoothing',2.5,'DisplayWaitbar',false);
+            [D,red_demons] = imregdemons(red_mask_image,refer_image,[400 200 200 50 50],'PyramidLevels',5,'AccumulatedFieldSmoothing',4,'DisplayWaitbar',false);
             green_demons = imwarp(green_mask_image,D,'linear');
 
         else
-            [D,green_demons] = imregdemons(green_mask_image,refer_image,[500 500 400 200],'PyramidLevels',4,'AccumulatedFieldSmoothing',2.5,'DisplayWaitbar',false);
-            red_demons = imwarp(red_mask_image,D,'linear');
+
+            [D,green_demons] = imregdemons(green_mask_image,refer_image,[400 200 200 50 50],'PyramidLevels',5,'AccumulatedFieldSmoothing',4,'DisplayWaitbar',false);
+            if Red_have
+                red_demons = imwarp(red_mask_image,D,'linear');
+            end
 
         end
         
         % Save the results.
-        red_demons = gather(red_demons);
+        if Red_have
+            red_demons = gather(red_demons);
+            red_demons_path = fullfile(file_path_red,'..','..','back_up','Red_Demons');
+            red_demons_MIPs_path = fullfile(file_path_red,'..','..','back_up','Red_Demons_MIP');
+            red_demons_name = ['Red_Demons_',num2str(i),'.mat'];
+            red_demons_MIPs_name = ['Red_Demons_MIP_',num2str(i),'.tif'];
+            imageWrite(red_demons_path,red_demons_MIPs_path,red_demons_name,red_demons_MIPs_name,red_demons,1);
+        end
+        
         green_demons = gather(green_demons);
-
-        red_demons_path = fullfile(file_path_red,'..','..','back_up','Red_Demons');
-        red_demons_MIPs_path = fullfile(file_path_red,'..','..','back_up','Red_Demons_MIP');
-        red_demons_name = ['Red_Demons_',num2str(i),'.mat'];
-        red_demons_MIPs_name = ['Red_Demons_MIP_',num2str(i),'.tif'];
-        imageWrite(red_demons_path,red_demons_MIPs_path,red_demons_name,red_demons_MIPs_name,red_demons,1);
-
         green_demons_path = fullfile(file_path_green,'..','..','back_up','Green_Demons');
         green_demons_MIPs_path = fullfile(file_path_green,'..','..','back_up','Green_Demons_MIP');
         green_demons_name = ['Green_Demons_',num2str(i),'.mat'];

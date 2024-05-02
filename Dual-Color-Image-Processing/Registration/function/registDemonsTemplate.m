@@ -29,7 +29,7 @@ function registDemonsTemplate(template_path,start_frame,step_size,end_frame,num_
         template_image = gpuArray(template_image);
         refer_image = gpuArray(refer_image);
 
-        [~,demons_template] = imregdemons(template_image,refer_image,[500 500 400 200],'PyramidLevels',4,'AccumulatedFieldSmoothing',2.5,'DisplayWaitbar',false);
+        [~,demons_template] = imregdemons(template_image,refer_image,[400 200 200 50 50],'PyramidLevels',5,'AccumulatedFieldSmoothing',4,'DisplayWaitbar',false);
         
         % Write the MIP.
         template_demons_MIP = [max(demons_template,[],3) squeeze(max(demons_template,[],2));squeeze(max(demons_template,[],1))' zeros(size(demons_template,3),size(demons_template,3))];

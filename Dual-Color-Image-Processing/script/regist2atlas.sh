@@ -2,20 +2,21 @@
 
 ## Transform meantemplate to atlas.
 file_dir='/home/d2/kexin/'
-red_flag=0
+# red_flag=0
 
-start_num=(0 0 4070) # Real number.
-end_num=(0 0 25980)
-step=10
+start_num=(0 299) # number of sort.
+end_num=(0 2774)
+step=1
 
 zbb_atlas="/home/user/tgd/Dual-Color-Image-Processing/data/Atlas/Ref-zbb2.nii"
 
-file_name=$(ls $file_dir);
+file_name=$(ls $file_dir); 
 file_name=(${file_name//,/ });
 # ${#file_name[*]}
-for ((i=2;i<3;i=i+1))
+for ((i=1;i<2;i=i+1))
 do
     regist_out_path=$file_dir/${file_name[$i]}/regist2atlas
+    # regist_out_path=$file_dir/regist2atlas
     mkdir $regist_out_path
     # if [ $red_flag -eq 1 ];then
     #     mean_template=$file_dir/${file_name[$i]}/r/template/mean_template.nii
@@ -24,17 +25,20 @@ do
     # fi
     mean_template=$file_dir/${file_name[$i]}/back_up/template/mean_template.nii
 
-    cd /home/user/tgd/Dual-Color-Image-Processing/Registration/script
-    matlab -nodesktop -nosplash -r "input = '${mean_template}'; output = '${mean_template}'; myunshort; quit"
+    if [ $i -ne 0 ];then
+        cd /home/user/tgd/Dual-Color-Image-Processing/Registration/script
+        matlab -nodesktop -nosplash -r "input = '${mean_template}'; output = '${mean_template}'; myunshort; quit"
+    fi
+
 
     ##### Run registration for mean-template to atlas.
     start_time=$(date +%s)
 
-    antsRegistration -d 3 --float 1 -o [${regist_out_path}/mean2atlas_,${regist_out_path}/mean2atlas_warped.nii.gz] -n WelchWindowedSinc \
-    -u 0 -r [$zbb_atlas,$mean_template,1] -t Rigid[0.1] -m MI[$zbb_atlas,$mean_template,1,32,Regular,0.25] \
-    -c [200x200x200x0,1e-8,10] -f 12x8x4x2 -s 4x3x2x1vox -t Affine[0.1] -m MI[$zbb_atlas,$mean_template,1,32,Regular,0.25] \
-    -c [200x200x200x0,1e-8,10] -f 12x8x4x2 -s 4x3x2x1vox -t SyN[0.05,6,0.5] -m CC[$zbb_atlas,$mean_template,1,2] -c [200x200x200x200x10,1e-7,10] \
-    -f 12x8x4x2x1 -s 4x3x2x1x0vox
+    antsRegistration -d 3 --float 1 -o [${regist_out_path}/mean2atlas_,${regist_out_path}/mean2atlas_warped.nii.gz] \
+        -n WelchWindowedSinc -u 0 -w [0.005,0.995] -r [$zbb_atlas,$mean_template,1] \
+        -t Rigid[0.1] -m MI[$zbb_atlas,$mean_template,1,32,Regular,0.25] -c [400x200x100x0,1e-8,10] -f 12x8x4x2 -s 4x3x2x1vox \
+        -t Affine[0.1] -m MI[$zbb_atlas,$mean_template,1,32,Regular,0.25] -c [400x200x100x0,1e-8,10] -f 12x8x4x2 -s 4x3x2x1vox \
+        -t SyN[0.05,6,0.5] -m CC[$zbb_atlas,$mean_template,1,2] -c [100x50x50x25x0,1e-7,8] -f 12x8x4x2x1 -s 4x3x2x1x0vox
 
     mv ${regist_out_path}/mean2atlas_warped.nii.gz $file_dir/${file_name[$i]}/back_up/template/
 
@@ -59,10 +63,19 @@ do
     mkdir $path_ants_g
     mkdir $path_ants_r
 
-    for ((j=${start_num[$i]};j<=${end_num[$i]};j=j+$step))
+    files_name=$(ls -v ${path_g}/nii/Green_Demons_*.nii);
+    files_name=(${files_name//,/ });
+
+    for ((k=${start_num[$i]};k<=${end_num[$i]};k=k+$step))
     do
 
         start_time=$(date +%s)
+        name_num=$(basename -s .nii ${files_name[$k]})
+        j=${name_num:13}
+
+        if [ -f "$path_ants_g/ants_g_$j.nii" ];then
+            continue
+        fi
 
         antsApplyTransforms -d 3 -v 0 --float 1 -n WelchWindowedSinc -i $path_g/nii/Green_Demons_$j.nii -r $zbb_atlas -o $path_ants_g/ants_g_$j.nii -t $regist_out_path/mean2atlas_1Warp.nii.gz -t $regist_out_path/mean2atlas_0GenericAffine.mat
 

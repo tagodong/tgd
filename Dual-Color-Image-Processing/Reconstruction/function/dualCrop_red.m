@@ -1,4 +1,4 @@
-function dualCrop(red_ObjRecon,green_ObjRecon,heart_flag,file_path_red,file_path_green,num,atlas,crop_size,x_shift)
+function dualCrop_red(red_ObjRecon,heart_flag,file_path_red,num,atlas,crop_size,x_shift)
 %% function summary: Crop the black background and rotate the two ObjRecons. 
 
 %  input:
@@ -22,7 +22,7 @@ atlas = gpuArray(atlas);
 %% If have heart expression, cut the heart.
     if heart_flag
         red_ObjRecon = red_ObjRecon(:,:,1:225);
-        green_ObjRecon = green_ObjRecon(:,:,1:225);
+        % green_ObjRecon = green_ObjRecon(:,:,1:225);
     end
 
 %% First, rotate the fish to vertical in XY plane
@@ -62,6 +62,25 @@ atlas = gpuArray(atlas);
             % green_ObjRecon = imrotate(green_ObjRecon,180,'bicubic', 'crop');
             flip_flag = 1;
         end
+
+        %% Third, rotate the fish in xz plane.
+        red_yz_MIP = squeeze(max(red_ObjRecon,[],1));
+        red_yz_bw_MIP = red_yz_MIP > mean_thresh;
+        [cor_y,cor_z] = ind2sub(size(red_yz_bw_MIP),find(red_yz_bw_MIP));
+        cor_coef = pca([cor_y,cor_z]);
+        yz_angle = atan(cor_coef(2,1)/cor_coef(1,1))/pi*180;
+        yz_angle = gather(yz_angle);
+        if abs(yz_angle) > 90
+            yz_angle = yz_angle - 180;
+        end
+
+        red_ObjRecon = permute(red_ObjRecon,[2 3 1]);
+        red_ObjRecon = imrotate(red_ObjRecon,-yz_angle,'bicubic','crop');
+        red_ObjRecon = permute(red_ObjRecon,[3 1 2]);
+
+        % green_ObjRecon = permute(green_ObjRecon,[2 3 1]);
+        % green_ObjRecon = imrotate(green_ObjRecon,-yz_angle,'bicubic','crop');
+        % green_ObjRecon = permute(green_ObjRecon,[3 1 2]);
 
         red_BW_ObjRecon = red_ObjRecon > mean(mean(mean(red_ObjRecon,'omitnan')+mean_thresh,'omitnan'),'omitnan');
         [cor_x,cor_y,cor_z] = ind2sub(size(red_BW_ObjRecon),find(red_BW_ObjRecon));
@@ -156,7 +175,7 @@ atlas = gpuArray(atlas);
     parameter_path = fullfile(file_path_red,'..','back_up','Parameters');
 
     if rotation_flag == 1
-        save(fullfile(parameter_path,['Crop_parameter_',num2str(num),'.mat']),'angle_azimuth','angel_elevation','flip_flag','image_size','rotation_flag');
+        save(fullfile(parameter_path,['Crop_parameter_',num2str(num),'.mat']),'angle_azimuth','angel_elevation','flip_flag','image_size','rotation_flag','yz_angle');
     else
         save(fullfile(parameter_path,['Crop_parameter_',num2str(num),'.mat']),'image_size','rotation_flag');
     end

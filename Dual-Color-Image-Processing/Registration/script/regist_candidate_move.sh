@@ -17,45 +17,15 @@ if [ $red_flag -eq 1 ]; then
         mkdir ${Green_template_path}
     fi
 fi
+red_have=1
 
 # Initialize path parameters.
 zbbfish="/home/user/tgd/Dual-Color-Image-Processing/data/Atlas/Ref-zbb2.nii"
 
 ###### When Red is usful, Regist Green to Red.
 if [ $red_flag -eq 1 ]; then
-
-    back_up_G2R_path=${template_path}/../back_up/G2R_Affine
-    mkdir ${back_up_G2R_path}
+    matlab -nodesktop -nosplash -r "cd ../; adpath; cd script; path_g = '${path_g}'; path_r = '${path_r}'; red_flag = $red_flag; regist_G2R; quit"
     G2R_path=$green_path/G2R
-    mkdir ${G2R_path}
-
-    file_name=$(ls $green_path/Green_Crop_*.nii);
-    file_name=(${file_name//,/ });
-    len=$(ls -l ${green_path}/Green_Crop_*.nii | grep "^-" | wc -l);
-
-    for ((i=0;i<$len;i=i+1))
-    do
-        name_num=$(basename -s .nii ${file_name[$i]});
-        
-        # Set k to the number of the name.
-        k=${name_num:11};
-
-        start_time=$(date +%s)
-        # Initialize affine matrix.
-        cmtk make_initial_affine --centers-of-mass ${red_path}/Red_Crop_${k}.nii ${green_path}/Green_Crop_${k}.nii ${G2R_path}/initial${k}.xform
-        
-        # Generate affine matrix.
-        cmtk registration --initial ${G2R_path}/initial${k}.xform --dofs 6,12 --exploration 8 --accuracy 0.05 --cr -o ${back_up_G2R_path}/affine${k}.xform ${red_path}/Red_Crop_${k}.nii ${green_path}/Green_Crop_${k}.nii
-
-        # Apply affine matrix.
-        cmtk reformatx -o ${G2R_path}/Green_Crop_G2R_${k}.nii --floating ${green_path}/Green_Crop_${k}.nii ${red_path}/Red_Crop_${k}.nii ${back_up_G2R_path}/affine${k}.xform
-
-        end_time=$(date +%s)
-        cost_time=$[ $end_time-$start_time ]
-        echo "Reg & Warp time is $(($cost_time/60))min $(($cost_time%60))s"
-        echo $name_num
-
-    done
 fi
 
 ###### Regist best candidate template.
@@ -63,15 +33,15 @@ fi
 cmtk make_initial_affine --centers-of-mass $zbbfish ${template_path}/Best_Can_template.nii ${template_path}/Best_initial.xform
 
 # Generate affine matrix.
-cmtk registration --initial ${template_path}/Best_initial.xform --dofs 6,6 --exploration 6 -f 0.1 -s 0.25 --accuracy 0.01 --cr -o ${template_path}/Best_affine.xform $zbbfish ${template_path}/Best_Can_template.nii
+cmtk registration --initial ${template_path}/Best_initial.xform --dofs 6,6 --exploration 6 -f 0.1 --accuracy 0.01 --cr -o ${template_path}/Best_affine.xform $zbbfish ${template_path}/Best_Can_template.nii
 
 # Apply affine matrix.
 cmtk reformatx -o ${template_path}/Best_mean_template.nii --floating ${template_path}/Best_Can_template.nii $zbbfish ${template_path}/Best_affine.xform
 
 ###### Regist candidate templates.
 # Read the red images.
-Affine_template_path=${template_path}/affine_template
-file_name=$(ls $template_path/Can_template*.nii);
+Affine_template_path=${template_path}/Affine_template
+file_name=$(ls -v $template_path/Can_template*.nii);
 file_name=(${file_name//,/ });
 len=$(ls -l $template_path/Can_template*.nii | grep "^-" | wc -l);
 
@@ -118,114 +88,42 @@ matlab -nodesktop -nosplash -r "input = '${mean_template}'; output = '${mean_tem
 ##### Run inverse nonrigid registration to make crop-eyes-MASK.
 start_time=$(date +%s)
 
-antsRegistration -d 3 --float 1 -o [${template_path}/Rigid_,${template_path}/zbb_Rigid.nii.gz] \
--t Rigid[0.1] -m MI[$mean_template,$zbbfish,1,32,Regular,0.25]  \
--c [200x200x100,1e-8,10] -f 8x4x2 -s 3x2x1
-
-antsRegistration -d 3 --float 1 -o [${template_path}/Affine_,${template_path}/zbb_Affine.nii.gz] \
--t Affine[0.1] -m MI[$mean_template,${template_path}/zbb_Rigid.nii.gz,1,32,Regular,0.25]  \
--c [200x200x100,1e-8,10] -f 8x4x2 -s 3x2x1
-
-antsRegistration -d 3 --float 1 -o [${template_path}/SyN_,${template_path}/zbb_SyN.nii.gz] \
--t SyN[0.05,6,0.4] -m CC[$mean_template,${template_path}/zbb_Affine.nii.gz,1,2]  \
--c [200x200x200x10,1e-7,10] -f 8x4x2x1 -s 3x2x1x0
+antsRegistration -d 3 --float 1 -o [${template_path}/zbb_Ants_,${template_path}/zbb_SyN.nii.gz] \
+-n WelchWindowedSinc -u 0 -w [0.005,0.995] -r [$mean_template,$zbbfish,1] \
+-t Rigid[0.1] -m MI[$mean_template,$zbbfish,1,32,Regular,0.25] -c [400x200x100x0,1e-8,10] -f 12x8x4x2 -s 4x3x2x1vox \
+-t Affine[0.1] -m MI[$mean_template,$zbbfish,1,32,Regular,0.25] -c [400x200x100x0,1e-8,10] -f 12x8x4x2 -s 4x3x2x1vox \
+-t SyN[0.05,6,0.1] -m CC[$mean_template,$zbbfish,1,2] -c [100x50x50x25x0,1e-7,8] -f 12x8x4x2x1 -s 4x3x2x1x0vox
 
 end_time=$(date +%s)
 cost_time=$[ $end_time-$start_time ]
 echo "Reg & Warp time is $(($cost_time/60))min $(($cost_time%60))s"
-echo $name_num
+echo "Ants done."
 
 ###### Crop eyes.
 matlab -nodesktop -nosplash -r "template_path = '${template_path}'; eyes_crop_template_run; quit"
 
-# Run demons registration.
+## Run demons registration.
 matlab -nodesktop -nosplash -r "template_path = '${template_path}'; demonsRegistTemplate_run; quit"
 
 ###### Average all the candidate templates.
 cmtk average_images --avg --outfile-name ${template_path}/mean_template.nii ${template_path}/template_demons/template_demons*.nii
+mean_template=${template_path}/mean_template.nii
 matlab -nodesktop -nosplash -r "input = '${mean_template}'; output = '${mean_template}'; myunshort; quit"
 
 ##### Regist to mean template.
-# Set the output green chanel image directory path that is registered.
-regist_red_path=${path_r}/Red_Registration
-mkdir $regist_red_path
-regist_green_path=${path_g}/Green_Registration
-mkdir $regist_green_path
-
-# Set the mean template path.
-mean_template=${template_path}/mean_template.nii
-
-# Back up the mean_tempalte.
+## Back up the mean_tempalte.
 back_up_template_path=${template_path}/../back_up/template
 back_up_affine_path=${template_path}/../back_up/Affine
 mkdir ${back_up_template_path}
 mkdir ${back_up_affine_path}
 cp ${mean_template} ${back_up_template_path}/mean_template.nii
-cp ${template_path}/zbb_Affine.nii.gz ${back_up_template_path}/zbb_Affine.nii.gz
+cp ${template_path}/zbb_SyN.nii.gz ${back_up_template_path}/zbb_SyN.nii.gz
 
-# Run affine registration.
-if [ $red_flag -eq 1 ]; then
-    
-    green_path=${G2R_path}
-    file_name=$(ls ${green_path}/Green_Crop_G2R_*.nii);
-    file_name=(${file_name//,/ });
-    len=$(ls -l ${green_path}/Green_Crop_G2R_*.nii | grep "^-" | wc -l);
+## Set the output green chanel image directory path that is registered.
+regist_red_path=${path_r}/Red_Registration
+mkdir $regist_red_path
+regist_green_path=${path_g}/Green_Registration
+mkdir $regist_green_path
 
-    for ((i=0;i<$len;i=i+1))
-    do
-        name_num=$(basename -s .nii ${file_name[$i]});
-
-        # Set k to the number of the name.
-        k=${name_num:15};
-
-        start_time=$(date +%s)
-
-        # Initialize affine matrix.
-        cmtk make_initial_affine --centers-of-mass $mean_template ${red_path}/Red_Crop_${k}.nii ${red_path}/initial${k}.xform
-        
-        # Generate affine matrix.
-        cmtk registration --initial ${red_path}/initial${k}.xform --dofs 6,12 --exploration 8 -s 0.25 --accuracy 0.05 --cr -o ${back_up_affine_path}/affine${k}.xform $mean_template ${red_path}/Red_Crop_${k}.nii
-
-        # Apply affine matrix.
-        cmtk reformatx -o ${regist_red_path}/Red_Affine_${k}.nii --floating ${red_path}/Red_Crop_${k}.nii $mean_template ${back_up_affine_path}/affine${k}.xform
-        cmtk reformatx -o ${regist_green_path}/Green_Affine_${k}.nii --floating ${green_path}/Green_Crop_G2R_${k}.nii $mean_template ${back_up_affine_path}/affine${k}.xform
-
-        end_time=$(date +%s)
-        cost_time=$[ $end_time-$start_time ]
-        echo "Reg & Warp time is $(($cost_time/60))min $(($cost_time%60))s"
-        echo $name_num
-
-    done
-
-else
-
-    file_name=$(ls ${green_path}/Green_Crop_*.nii);
-    file_name=(${file_name//,/ });
-    len=$(ls -l ${green_path}/Green_Crop_*.nii | grep "^-" | wc -l);
-
-    for ((i=0;i<$len;i=i+1))
-    do
-        name_num=$(basename -s .nii ${file_name[$i]});
-        
-        # Set k to the number of the name.
-        k=${name_num:11};
-
-        start_time=$(date +%s)
-
-        # Initialize affine matrix.
-        cmtk make_initial_affine --centers-of-mass $mean_template ${green_path}/Green_Crop_${k}.nii ${green_path}/initial${k}.xform
-        
-        # Generate affine matrix.
-        cmtk registration --initial ${green_path}/initial${k}.xform --dofs 6,12 --exploration 8 -s 0.25 --accuracy 0.05 --cr -o ${back_up_affine_path}/affine${k}.xform $mean_template ${green_path}/Green_Crop_${k}.nii
-
-        # Apply affine matrix.
-        cmtk reformatx -o ${regist_red_path}/Red_Affine_${k}.nii --floating ${red_path}/Red_Crop_${k}.nii $mean_template ${back_up_affine_path}/affine${k}.xform
-        cmtk reformatx -o ${regist_green_path}/Green_Affine_${k}.nii --floating ${green_path}/Green_Crop_${k}.nii $mean_template ${back_up_affine_path}/affine${k}.xform
-
-        end_time=$(date +%s)
-        cost_time=$[ $end_time-$start_time ]
-        echo "Reg & Warp time is $(($cost_time/60))min $(($cost_time%60))s"
-        echo $name_num
-
-    done
-fi
+## Run affine registration.
+matlab -nodesktop -nosplash -r "cd ../; adpath; cd script;path_g = '${path_g}'; path_r = '${path_r}'; red_flag = $red_flag; fix_flag = 0;  = red_have;regist_affine; quit"
