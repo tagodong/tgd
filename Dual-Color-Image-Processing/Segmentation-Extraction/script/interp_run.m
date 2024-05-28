@@ -8,9 +8,10 @@
 
 % Set path.
 clear
-file_dir = '/home/d1/kexin_raphe/0410-01/back_up/';
+file_dir = '/home/d2/kexin/20240521_1724_7dpf_gl-nsd-e/back_up';
 CalTrace_path = fullfile(file_dir,'CalTrace');
 step = 1;
+red_have = 1;
 
 if ~exist(CalTrace_path,'dir')
     mkdir(CalTrace_path);
@@ -37,10 +38,10 @@ for j = 1:1
     
     load(fullfile(file_dir,'bad_index.mat'),'bad_index_final');
     % bad_index_final = bad_index_final(312:end);
-    bad_index = sort(bad_index_final(399:end));
+    % bad_index = sort(bad_index_final(399:end));
 
-    % bad_index = sort(bad_index_final2); % note it is the real index.
-    % bad_index = [327 1193 1727 2156 2424];
+    bad_index = sort(bad_index_final); % note it is the real index.
+    % bad_index = [253 254 255 347 813 824];
 
     %% Interp the bad index.
     num = 0;
@@ -55,7 +56,9 @@ for j = 1:1
         end
         disp(['start continuous index: ', num2str(bad_index(i-num))]);
         disp(['end continuous index: ', num2str(bad_index(i))]);
-        interp_bad(file_path_red,pre_name_red,bad_index(i-num)-step,bad_index(i)+step,1,step);
+        if red_have
+            interp_bad(file_path_red,pre_name_red,bad_index(i-num)-step,bad_index(i)+step,1,step);
+        end
         interp_bad(file_path_green,pre_name_green,bad_index(i-num)-step,bad_index(i)+step,0,step);
         num = 0;
         i = i+1;

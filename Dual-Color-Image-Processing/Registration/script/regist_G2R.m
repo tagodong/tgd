@@ -33,7 +33,7 @@ spmd
                 continue;
             end
 
-            myCMTK(path_g,path_r,red_flag,num,0,1);
+            myCMTK(path_g,path_r,red_flag,0,num,1,1);
         end
 
     end

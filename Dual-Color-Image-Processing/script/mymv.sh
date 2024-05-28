@@ -1,0 +1,1 @@
+find /home/d1/kexin_raphe/22-0930/g8s_lssm_tph2_chri_10dpf_2022-09-30_17-02-49/0_Camera-Green_VSC-02486/ -name "*.tif"  -exec mv {} /home/d1/kexin_raphe/22-0930/g/ \;

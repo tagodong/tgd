@@ -58,7 +58,7 @@ process_frame() {
     # Apply affine matrix to the red channel.
     if [ $red_have -eq 1 ]; then
         cmtk reformatx -o ${regist_red_path}/Red_Affine_${k}.nii --floating ${red_path}/Red_Crop_${k}.nii $mean_template ${back_up_affine_path}/affine${k}.xform
-    end
+    fi
     
     # Apply affine matrix to the green channel.
     if [ $fix_flag -eq 1 ]; then

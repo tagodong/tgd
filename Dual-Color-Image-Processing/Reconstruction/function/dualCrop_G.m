@@ -26,10 +26,17 @@ function dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,red_have,file_path_re
 
         % red_ObjRecon = red_ObjRecon(:,:,1:225);
         % green_ObjRecon = green_ObjRecon(:,:,1:225);
-        if red_have
-            red_ObjRecon(436:600,:,226:300) = 0;
+        if num > 33
+            if red_have
+                red_ObjRecon(375:600,:,230:300) = 0;
+            end
+            green_ObjRecon(375:600,:,230:300) = 0;
+        else
+            if red_have
+                red_ObjRecon(375:600,:,260:300) = 0;
+            end
+            green_ObjRecon(375:600,:,260:300) = 0;
         end
-        green_ObjRecon(436:600,:,226:300) = 0;
 
     end
     
@@ -58,7 +65,7 @@ function dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,red_have,file_path_re
             red_ObjRecon = permute(red_ObjRecon,[1 3 2]);
         end
 
-%% second, check if the fish is right vertival whose head in the top using template matching, if not flip it.
+    %% second, check if the fish is right vertival whose head in the top using template matching, if not flip it.
         flip_flag = 0;
         green_xy_MIP = max(green_ObjRecon,[],3);
         zbb_xy_MIP = max(atlas,[],3); 
@@ -72,6 +79,27 @@ function dualCrop_G(red_ObjRecon,green_ObjRecon,heart_flag,red_have,file_path_re
             end
             green_ObjRecon = imrotate(green_ObjRecon,180,'bicubic', 'crop');
             flip_flag = 1;
+        end
+
+     %% Third, rotate the fish in xz plane.
+        green_yz_MIP = squeeze(max(green_ObjRecon,[],1));
+        green_yz_bw_MIP = green_yz_MIP > mean_thresh;
+        [cor_y,cor_z] = ind2sub(size(green_yz_bw_MIP),find(green_yz_bw_MIP));
+        cor_coef = pca([cor_y,cor_z]);
+        yz_angle = atan(cor_coef(2,1)/cor_coef(1,1))/pi*180;
+        yz_angle = gather(yz_angle);
+        if abs(yz_angle) > 90
+            yz_angle = yz_angle - 180;
+        end
+
+        green_ObjRecon = permute(green_ObjRecon,[2 3 1]);
+        green_ObjRecon = imrotate(green_ObjRecon,-yz_angle,'bicubic','crop');
+        green_ObjRecon = permute(green_ObjRecon,[3 1 2]);
+
+        if red_have
+            red_ObjRecon = permute(red_ObjRecon,[2 3 1]);
+            red_ObjRecon = imrotate(red_ObjRecon,-yz_angle,'bicubic','crop');
+            red_ObjRecon = permute(red_ObjRecon,[3 1 2]);
         end
 
         green_BW_ObjRecon = green_ObjRecon > mean(mean(mean(green_ObjRecon,'omitnan')+mean_thresh,'omitnan'),'omitnan');

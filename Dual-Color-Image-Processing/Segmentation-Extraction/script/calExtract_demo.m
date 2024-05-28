@@ -4,10 +4,11 @@
 
 clear
 % set path.
-file_dir = '/home/d1/kexin_raphe/0410-01/back_up/';
+file_dir = '/home/d2/kexin/20240521_1724_7dpf_gl-nsd-e/back_up';
 
-start_frame = 399; % note it is the sort index.
-% end_frame = 7165;
+start_frame = 1; % note it is the sort index.
+% end_frame = 1255;
+red_have = 1;
 
 CalTrace_path = fullfile(file_dir,'CalTrace');
 if ~exist(CalTrace_path,'dir')
@@ -66,10 +67,12 @@ for j = 1:1
     disp('Green trace done.');
 
     % extract the red trace.
-    write_flag = 1;
-    R_trace = traceExtract2(file_path_red,pre_name_red,value_name_red,seg_regions,start_frame,end_frame,name_num);
-    save(fullfile(CalTrace_path,'R_trace.mat'),'R_trace');
-    disp('Red trace done.');
+    if red_have
+        write_flag = 1;
+        R_trace = traceExtract2(file_path_red,pre_name_red,value_name_red,seg_regions,start_frame,end_frame,name_num);
+        save(fullfile(CalTrace_path,'R_trace.mat'),'R_trace');
+        disp('Red trace done.');
+    end
 
     Cal_index = name_num(start_frame:end_frame); % file name.
     save(fullfile(CalTrace_path,'Cal_index.mat'),'Cal_index');

@@ -18,7 +18,7 @@ function reConstruction_norm(file_path_red,file_path_green,red_flag,heart_flag,r
 
 %% Initialize the parameters.
     if nargin == 13
-        x_shift = 80;
+        x_shift = 60;
         gpu_index = [1 2 3 4];
     else 
         if nargin == 14
@@ -29,11 +29,11 @@ function reConstruction_norm(file_path_red,file_path_green,red_flag,heart_flag,r
 %% Read the image and run reConstruct function to construct image.
     gpu_num = length(gpu_index);
     if red_have
-        r_files = dir(fullfile(file_path_red,'*.tif'));
+        r_files = dir(fullfile(file_path_red,'*.tif'));  %%% 3
         all_tifs = sortName(r_files);
     end
 
-    g_files = dir(fullfile(file_path_green,'*.tif'));
+    g_files = dir(fullfile(file_path_green,'*.tif'));  %%%
     all_tifs_g = sortName(g_files);
     disp(all_tifs_g);
     spmd_num = ceil((end_frame-start_frame+1)/step_size/gpu_num);
@@ -73,6 +73,8 @@ function reConstruction_norm(file_path_red,file_path_green,red_flag,heart_flag,r
                     red_recon_MIP_path = fullfile(file_path_red,'..','back_up','Red_Recon_MIP');
                     red_recon_MIP_name = ['Red_Recon_MIP_',num2str(num),'.tif'];
                     imageWrite(red_recon_path,red_recon_MIP_path,red_recon_name,red_recon_MIP_name,red_ObjRecon,1);
+
+                    % red_ObjRecon = gpuArray(load(fullfile(red_recon_path,red_recon_name)).ObjRecon);
                 else
                     red_ObjRecon = [];
                 end
@@ -88,10 +90,12 @@ function reConstruction_norm(file_path_red,file_path_green,red_flag,heart_flag,r
                 green_recon_MIP_path = fullfile(file_path_green,'..','back_up','Green_Recon_MIP');
                 green_recon_MIP_name = ['Green_Recon_MIP_',num2str(num),'.tif'];
                 imageWrite(green_recon_path,green_recon_MIP_path,green_recon_name,green_recon_MIP_name,green_ObjRecon,1);
+                
+                % green_ObjRecon = gpuArray(load(fullfile(green_recon_path,green_recon_name)).ObjRecon);
                 toc;
 
                 %% Synchronize the red and green.
-                [red_ObjRecon,green_ObjRecon] = rgSyn(red_ObjRecon,green_ObjRecon,red_have);
+                [red_ObjRecon,green_ObjRecon] = rgSyn(red_ObjRecon,green_ObjRecon,red_have);  %%%
 
                 %% Important: Transform the green to register the red because of dissynchrony of dichroic mirrors.
                 green_ObjRecon = imwarp(green_ObjRecon,tform,'linear','OutputView',imref3d(size(green_ObjRecon)));
@@ -107,9 +111,7 @@ function reConstruction_norm(file_path_red,file_path_green,red_flag,heart_flag,r
                 toc;
                 disp(['frame ',num2str(num),' end.']);
             end
-            
         end
-        
     end
 
     delete(gcp('nocreate'));

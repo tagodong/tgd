@@ -36,6 +36,7 @@ else
     niftiwrite(ObjRecon,fullfile(template_path,'Best_Can_template.nii'));
 end
 
+save(fullfile(path_g,'..','back_up','Parameters','base.mat'),'global_number','-append');
 % zbb_fish = uint16(niftiread('/home/user/tgd/Dual-Color-Image-Processing/data/Atlas/Ref-zbb1.nii'));
 % zbb_MIP = max(zbb_fish,[],3);
 

@@ -4,13 +4,13 @@
 
 clear;
 % set path.
-file_dir = '/home/d2/daguang/2023-12-03_19-16-37_g8s_lssm_5dpf/back_up/';
+file_dir = '/home/d2/kexin/20240521_1615_gltc-nsd-s_7dpf/back_up';
 load(fullfile(file_dir,'..','CalTrace','seg_regions.mat'));
 load(fullfile(file_dir,'..','CalTrace','water_corMap.mat'));
 interp_flag = 0;
 
-% start_frame = 1; % note it is the sort index.
-end_frame = 7165;
+start_frame = 35; % note it is the sort index.
+end_frame = 1255;
 
 CalTrace_path = fullfile(file_dir,'CalTrace');
 if ~exist(CalTrace_path,'dir')

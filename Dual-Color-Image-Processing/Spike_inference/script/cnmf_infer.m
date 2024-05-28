@@ -25,3 +25,5 @@ Ca_A = foot_A(:,merge_SNR>2);
 
 
 save(fullfile(path,'result','neurons_infer2.mat'),'denoise_ca','new_C','Ca_SNR','Ca_A','g','b','sn','lam','Cal_id','Ca_SNR','Ca_A','Ca_sequence','-v7.3');
+
+

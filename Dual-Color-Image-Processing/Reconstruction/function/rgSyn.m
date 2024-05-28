@@ -5,7 +5,9 @@ function [red_ObjRecon,green_ObjRecon] = rgSyn(red_ObjRecon,green_ObjRecon,red_h
     end
 
     if red_have
-        red_ObjRecon = flip(red_ObjRecon,2);
+        red_ObjRecon = flip(red_ObjRecon,2);  %%%
+        % red_ObjRecon = flip(red_ObjRecon,1);
+
         red_ObjRecon = flip(red_ObjRecon,3);
     else
         red_ObjRecon = [];

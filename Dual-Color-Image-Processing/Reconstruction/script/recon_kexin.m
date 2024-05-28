@@ -13,10 +13,12 @@ adpath;
 % path_g="/home/d2/Recon/VCD2.20/projection/add_noise";
 % path_r="/home/d2/Recon/VCD2.20/projection/add_noise";
 % red_flag = 1;
-start_num = 1;
-end_num = 1300;
+start_num = 3137;
+end_num = 12622;
 % step_size = 1;
 % heart_flag = 0; % Note your data.
+regist_flag = 1;
+global_number = 5930;
 
 file_Path_Red = path_r;
 file_Path_Green = path_g;
@@ -25,38 +27,22 @@ file_Path_Green = path_g;
 % idx_frame_left_final = start_num:end_num;
 
 % mkdir directories.
-% For back up.
 if ~exist(fullfile(file_Path_Green,'..','back_up'),"dir")
-    mkdir(fullfile(file_Path_Green,'..','back_up'));
-end
-if ~exist(fullfile(file_Path_Green,'..','back_up','Parameters'),"dir")
-    mkdir(fullfile(file_Path_Green,'..','back_up','Parameters'));
-end
-if ~exist(fullfile(file_Path_Green,'..','back_up','Red_Recon'),"dir")
-    mkdir(fullfile(file_Path_Green,'..','back_up','Red_Recon'));
-end
-if ~exist(fullfile(file_Path_Green,'..','back_up','Red_Recon_MIP'),"dir")
-    mkdir(fullfile(file_Path_Green,'..','back_up','Red_Recon_MIP'));
-end
-if ~exist(fullfile(file_Path_Green,'..','back_up','Green_Recon'),"dir")
-    mkdir(fullfile(file_Path_Green,'..','back_up','Green_Recon'));
-end
-if ~exist(fullfile(file_Path_Green,'..','back_up','Green_Recon_MIP'),"dir")
-    mkdir(fullfile(file_Path_Green,'..','back_up','Green_Recon_MIP'));
-end
-if ~exist(fullfile(file_Path_Green,'..','back_up','Green_Crop_MIP'),"dir")
-    mkdir(fullfile(file_Path_Green,'..','back_up','Green_Crop_MIP'));
-end
-if ~exist(fullfile(file_Path_Green,'..','back_up','Red_Crop_MIP'),"dir")
-    mkdir(fullfile(file_Path_Green,'..','back_up','Red_Crop_MIP'));
-end
 
-% For Computation.
-if ~exist(fullfile(file_Path_Green,'Green_Crop'),"dir")
+    % For back up.
+    mkdir(fullfile(file_Path_Green,'..','back_up'));
+    mkdir(fullfile(file_Path_Green,'..','back_up','Parameters'));
+    mkdir(fullfile(file_Path_Green,'..','back_up','Red_Recon'));
+    mkdir(fullfile(file_Path_Green,'..','back_up','Red_Recon_MIP'));
+    mkdir(fullfile(file_Path_Green,'..','back_up','Green_Recon'));
+    mkdir(fullfile(file_Path_Green,'..','back_up','Green_Recon_MIP'));
+    mkdir(fullfile(file_Path_Green,'..','back_up','Green_Crop_MIP'));
+    mkdir(fullfile(file_Path_Green,'..','back_up','Red_Crop_MIP'));
+    
+    % For Computation.
     mkdir(fullfile(file_Path_Green,'Green_Crop'));
-end
-if ~exist(fullfile(file_Path_Red,'Red_Crop'),"dir")
     mkdir(fullfile(file_Path_Red,'Red_Crop'));
+
 end
 
 % Point spread function.
@@ -94,9 +80,9 @@ end
 
 if ~exist('end_num','var')
     if Red_have
-        end_num = min(length(dir(fullfile(file_Path_Red,'*.tif'))),length(dir(fullfile(file_Path_Green,'*.tif'))));  %%% 2
+        end_num = min(length(dir(fullfile(file_Path_Red,'*.tif'))),length(dir(fullfile(file_Path_Green,'*.tif'))));
     else
-        end_num = length(dir(fullfile(file_Path_Green,'*.tif')));  %%%
+        end_num = length(dir(fullfile(file_Path_Green,'*.tif')));
     end
     
 end
@@ -115,7 +101,7 @@ end
 
 % Run reconstruction and crop the black background.
 tic;
-    reConstruction_norm(file_Path_Red,file_Path_Green,red_flag,heart_flag,Red_have,red_PSF,green_PSF,atlas,crop_size,start_num,step_size,end_num,tform,x_shift,gpu_index);
+    reConstruction_kexin(file_Path_Red,file_Path_Green,red_flag,heart_flag,Red_have,red_PSF,green_PSF,atlas,crop_size,start_num,step_size,end_num,tform,x_shift,regist_flag,global_number,gpu_index);
 toc;
 
 save(fullfile(file_Path_Green,'..','back_up','Parameters','base.mat'),'heart_flag','tform');

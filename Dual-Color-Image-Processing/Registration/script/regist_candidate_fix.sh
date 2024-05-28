@@ -22,40 +22,6 @@ fi
 # Initialize path parameters.
 zbbfish="/home/user/tgd/Dual-Color-Image-Processing/data/Atlas/Ref-zbb2.nii"
 
-# ##### When Red is usful, Regist Green to Red.
-# if [ $red_flag -eq 1 ]; then
-
-#     G2R_path=$green_path/G2R
-#     mkdir ${G2R_path}
-#     file_name=$(ls $green_path/Green*.nii);
-#     file_name=(${file_name//,/ });
-#     len=$(ls -l ${green_path}/Green*.nii | grep "^-" | wc -l);
-
-#     for ((i=0;i<$len;i=i+1))
-#     do
-#         name_num=$(basename -s .nii ${file_name[$i]});
-        
-#         # Set k to the number of the name.
-#         k=${name_num:5};
-
-#         start_time=$(date +%s)
-#         # Initialize affine matrix.
-#         cmtk make_initial_affine --centers-of-mass ${red_path}/Red${k}.nii ${green_path}/Green${k}.nii ${G2R_path}/initial${k}.xform
-        
-#         # Generate affine matrix.
-#         cmtk registration --initial ${G2R_path}/initial${k}.xform --dofs 6,12 --exploration 8 --accuracy 0.05 --cr -o ${G2R_path}/affine${k}.xform ${red_path}/Red${k}.nii ${green_path}/Green${k}.nii
-
-#         # Apply affine matrix.
-#         cmtk reformatx -o ${G2R_path}/Green_G2R${k}.nii --floating ${green_path}/Green${k}.nii ${red_path}/Red${k}.nii ${G2R_path}/affine${k}.xform
-
-#         end_time=$(date +%s)
-#         cost_time=$[ $end_time-$start_time ]
-#         echo "Reg & Warp time is $(($cost_time/60))min $(($cost_time%60))s"
-#         echo $name_num
-
-#     done
-# fi
-
 ###### Regist best candidate template.
 # Initialize rigid matrix.
 cmtk make_initial_affine --centers-of-mass $zbbfish ${template_path}/Best_Can_template.nii ${template_path}/Best_initial.xform
@@ -150,7 +116,7 @@ cp ${template_path}/zbb_SyN.nii.gz ${back_up_template_path}/zbb_SyN.nii.gz
 
 ##### Regist to mean template.
 # Set the output green chanel image directory path that is registered.
-if [ $red_have -eq 1]; then
+if [ $red_have -eq 1 ]; then
     regist_red_path=${path_r}/Red_Registration
     mkdir $regist_red_path
 fi
@@ -158,4 +124,4 @@ regist_green_path=${path_g}/Green_Registration
 mkdir $regist_green_path
 
 # Run affine registration.
-matlab -nodesktop -nosplash -r "cd ../; adpath; cd script;path_g = '${path_g}'; path_r = '${path_r}'; red_flag = $red_flag; fix_flag = 0;red_have = red_have; regist_affine; quit"
+matlab -nodesktop -nosplash -r "cd ../; adpath; cd script; path_g = '${path_g}'; path_r = '${path_r}'; red_flag = $red_flag; fix_flag = 1; red_have = $red_have; regist_affine; quit"

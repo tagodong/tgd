@@ -45,6 +45,7 @@ process_frame() {
     end_time=$(date +%s)
     cost_time=$((end_time - start_time))
     echo "$k: Reg & Warp time is $((cost_time/60))min $((cost_time%60))s"
+    
 }
 
 # Run affine registration.

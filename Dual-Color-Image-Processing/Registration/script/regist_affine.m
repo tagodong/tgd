@@ -31,11 +31,17 @@ spmd
             
         if i <= length(file_name)
 
-            image_name = file_name(i).name;
-            image_name = split(image_name,'_');
-            image_name = image_name{4};
-            num_index=isstrprop(image_name,'digit');
-            num = str2double(image_name(num_index));
+            if fix_flag == 0
+                image_name = file_name(i).name;
+                image_name = split(image_name,'_');
+                image_name = image_name{4};
+                num_index=isstrprop(image_name,'digit');
+                num = str2double(image_name(num_index));
+            else
+                image_name = file_name(i).name;
+                num_index=isstrprop(image_name,'digit');
+                num = str2double(image_name(num_index));
+            end
 
             % if exist(fullfile(path_g,'Green_Registration',['Green_Affine_',num2str(num),'.nii']),"file")
             %     continue;

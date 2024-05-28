@@ -126,4 +126,4 @@ regist_green_path=${path_g}/Green_Registration
 mkdir $regist_green_path
 
 ## Run affine registration.
-matlab -nodesktop -nosplash -r "cd ../; adpath; cd script;path_g = '${path_g}'; path_r = '${path_r}'; red_flag = $red_flag; fix_flag = 0;  = red_have;regist_affine; quit"
+matlab -nodesktop -nosplash -r "cd ../; adpath; cd script;path_g = '${path_g}'; path_r = '${path_r}'; red_flag = $red_flag; fix_flag = 0; red_have = $red_have; regist_affine; quit"
